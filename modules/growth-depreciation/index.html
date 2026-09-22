@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#5b5bd6">
+<title>Growth & Depreciation — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css"></head>
+<body><main class="app">
+<section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Lesson 3 • Growth and Depreciation</div><h1>Growth <span>& Depreciation</span></h1><p>Model population growth, increasing prices and depreciation as repeated percentage change.</p></div><div class="hero-art"><div class="hero-symbol">↗</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
+<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
+<section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Core idea</div><h2>Repeated percentage change</h2></div></div>
+<div class="learn-grid">
+<div class="learn-card"><h3>Growth</h3><p>A quantity increases by the same percentage of its current value each period.</p><span class="formula">Pₜ = P(1 + R/100)ᵀ</span></div>
+<div class="learn-card"><h3>Increase</h3><p>The total increase is final value minus initial value.</p><span class="formula">Increase = Pₜ − P</span></div>
+<div class="learn-card"><h3>Depreciation</h3><p>A value decreases by a percentage of its current value each period.</p><span class="formula">Vₜ = V₀(1 − R/100)ᵀ</span></div>
+<div class="learn-card"><h3>Different yearly rates</h3><p>Use one growth/depreciation factor for each year.</p><span class="formula">Pₜ=P(1+R₁/100)(1+R₂/100)…</span></div>
+<div class="learn-card"><h3>Migration / deaths</h3><p>Apply percentage growth, then adjust for migration/death where the problem states it.</p></div>
+<div class="learn-card"><h3>Key link</h3><p>The same repeated-change structure used in compound interest appears here.</p></div>
+</div></section>
+<section id="page-explore" class="panel page hidden"><div class="grid2"><aside class="panel"><div class="section-head"><div><div class="kicker">Simulator</div><h2>Growth or depreciation</h2></div></div>
+<div class="controls" style="margin-top:12px">
+<div class="control"><label>Mode</label><select id="gdMode"><option value="g">Growth</option><option value="d">Depreciation</option></select></div>
+<div class="control"><div class="control-top"><label>Initial value</label><div class="valuebox"><input id="gdP" type="number" value="50000"></div></div><input id="gdPr" type="range" min="1000" max="500000" step="1000" value="50000"></div>
+<div class="control"><div class="control-top"><label>Rate</label><div class="valuebox"><input id="gdR" type="number" value="5" step=".5"><span>%</span></div></div><input id="gdRr" type="range" min="1" max="30" step=".5" value="5"></div>
+<div class="control"><div class="control-top"><label>Years</label><div class="valuebox"><input id="gdT" type="number" value="3"><span>yr</span></div></div><input id="gdTr" type="range" min="1" max="12" value="3"></div>
+</div></aside><section class="panel"><div class="metrics" id="gdMetrics"></div><div class="visual"><svg id="gdSvg" viewBox="0 0 700 330"></svg></div><div class="tablewrap"><table class="table"><thead><tr><th>Year</th><th>Value</th><th>Change</th></tr></thead><tbody id="gdRows"></tbody></table></div></section></div></section>
+<section id="page-practice" class="panel page hidden"><div class="section-head"><div><div class="kicker">Guided example</div><h2>Population growth</h2></div></div><div class="challenge"><div class="problem">A municipality has population 25,000 and increases by 2% every year. Find the population after 2 years.</div><div class="btnrow"><button class="primary" id="gdShow">Show solution</button></div><div id="gdSol" class="feedback"></div></div></section>
+<section id="page-challenge" class="panel page hidden"><div class="section-head"><div><div class="kicker">Quick challenge</div><h2>Find the future value</h2></div><button class="ghost" id="gdNew">New</button></div><div class="challenge"><div id="gdPrompt" class="problem"></div><input id="gdAns" type="number" step=".01" style="margin-top:10px"><div class="btnrow"><button class="green" id="gdCheck">Check</button></div><div id="gdFb" class="feedback"></div></div></section>
+<footer>MathLab 10 • Growth & Depreciation</footer></main>
+<script>
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById("page-"+b.dataset.page).classList.remove("hidden")}));
+
+const g$=s=>document.querySelector(s);
+function bindNum(a,b,fn){g$(a).oninput=()=>{g$(b).value=g$(a).value;fn()};g$(b).oninput=()=>{g$(a).value=g$(b).value;fn()}}
+bindNum("#gdP","#gdPr",gdRender);bindNum("#gdR","#gdRr",gdRender);bindNum("#gdT","#gdTr",gdRender);g$("#gdMode").onchange=gdRender;
+function gdRender(){let P=+g$("#gdP").value,R=+g$("#gdR").value,T=+g$("#gdT").value,mode=g$("#gdMode").value,f=mode==="g"?1+R/100:1-R/100,vals=[P];for(let i=1;i<=T;i++)vals.push(vals.at(-1)*f);let F=vals.at(-1),chg=F-P;
+g$("#gdMetrics").innerHTML=[["Initial",P],["Final",F],["Net change",chg],["Factor",f]].map((x,i)=>`<div class="metric ${i===1?"primary":""}"><div class="k">${x[0]}</div><div class="v">${i===3?x[1].toFixed(3):x[1].toLocaleString(undefined,{maximumFractionDigits:2})}</div></div>`).join("");
+let svg=g$("#gdSvg"),max=Math.max(...vals),pts=vals.map((v,i)=>[60+i*(580/Math.max(T,1)),280-(v/max)*220]);svg.innerHTML=`<line x1="50" y1="280" x2="650" y2="280" stroke="#b8bdcc"/><line x1="50" y1="35" x2="50" y2="280" stroke="#b8bdcc"/><polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="#5b5bd6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`+pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="#fff" stroke="#5b5bd6" stroke-width="3"/><text x="${p[0]}" y="${p[1]-12}" text-anchor="middle" font-size="12" fill="#17192b">${Math.round(vals[i]).toLocaleString()}</text>`).join("");
+g$("#gdRows").innerHTML=vals.map((v,i)=>`<tr><td>${i}</td><td>${v.toLocaleString(undefined,{maximumFractionDigits:2})}</td><td>${i?((v-vals[i-1]).toLocaleString(undefined,{maximumFractionDigits:2})):"—"}</td></tr>`).join("")}
+g$("#gdShow").onclick=()=>g$("#gdSol").innerHTML=`25,000(1.02)<sup>2</sup> = 26,010.`;
+let gdC={};function gdNew(){let P=[10000,25000,40000,80000][Math.floor(Math.random()*4)],R=[2,5,10,15][Math.floor(Math.random()*4)],T=[2,3,4][Math.floor(Math.random()*3)],m=Math.random()<.5?"g":"d";gdC={P,R,T,m,ans:P*Math.pow(m==="g"?1+R/100:1-R/100,T)};g$("#gdPrompt").textContent=`${m==="g"?"Growth":"Depreciation"}: initial value ${P.toLocaleString()}, rate ${R}% for ${T} years. Find final value.`;g$("#gdAns").value="";g$("#gdFb").textContent=""}
+g$("#gdNew").onclick=gdNew;g$("#gdCheck").onclick=()=>{let ok=Math.abs(+g$("#gdAns").value-gdC.ans)<1;g$("#gdFb").textContent=ok?"✅ Correct.":`Try again. Use ${gdC.m==="g"?"1 + R/100":"1 − R/100"} as the yearly factor.`};gdRender();gdNew();
+
+</script></body></html>

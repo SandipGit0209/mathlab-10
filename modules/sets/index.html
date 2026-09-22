@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5b5bd6">
+<title>SetLab — Interactive Venn Diagram Playground</title>
+<style>
+:root{
+  --bg:#f7f8fc; --card:#ffffff; --panel:#f1f3f9; --text:#16182a; --muted:#70758a;
+  --border:#e2e5ef; --accent:#5b5bd6; --accent2:#19a37a; --accent3:#f59e0b;
+  --a:#5b5bd6; --b:#16a3d6; --c:#f59e0b; --danger:#e85d75; --success:#16a34a;
+  --shadow:0 18px 50px rgba(28,34,65,.08); --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-width:320px; color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(91,91,214,.10),transparent 26rem),
+    radial-gradient(circle at 100% 12%,rgba(25,163,122,.08),transparent 24rem),
+    var(--bg);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:3px solid rgba(91,91,214,.22); outline-offset:2px;
+}
+.app{width:min(1240px,calc(100% - 24px));margin:16px auto 40px}
+.stack{display:grid;gap:16px}
+.panel{background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;min-width:0}
+.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:20px;align-items:center;overflow:hidden}
+.kicker{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(2.2rem,5vw,4.5rem);line-height:.95;letter-spacing:-.055em;margin:6px 0 0;font-weight:950}
+.hero h1 span{color:var(--accent)}
+.hero p{max-width:720px;color:var(--muted);line-height:1.65;margin:14px 0 0;font-size:15px}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{padding:8px 11px;border:1px solid var(--border);border-radius:999px;background:var(--card);font-size:12px;font-weight:800;color:var(--muted)}
+.hero-art{min-height:220px;border-radius:22px;background:linear-gradient(135deg,#eef0ff,#effbf7);position:relative;display:grid;place-items:center;overflow:hidden}
+.hero-art .circle-a,.hero-art .circle-b{position:absolute;width:150px;height:150px;border-radius:50%;border:3px solid}
+.hero-art .circle-a{left:54px;border-color:var(--a);background:rgba(91,91,214,.09)}
+.hero-art .circle-b{right:54px;border-color:var(--b);background:rgba(22,163,214,.09)}
+.hero-art .formula{position:absolute;bottom:18px;background:rgba(255,255,255,.86);border:1px solid var(--border);border-radius:12px;padding:10px 13px;font-family:Georgia,serif;font-weight:700}
+.topnav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;background:var(--panel);padding:6px;border-radius:16px}
+.navbtn{border:0;background:transparent;border-radius:12px;padding:12px 8px;font-weight:850;color:var(--muted);min-height:46px}
+.navbtn.active{background:var(--card);color:var(--accent);box-shadow:0 3px 14px rgba(0,0,0,.06)}
+.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.section-title h2{margin:4px 0 0;font-size:24px;letter-spacing:-.035em}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--panel);padding:4px;border-radius:12px}
+.mode-switch button{border:0;background:transparent;border-radius:9px;padding:9px 13px;font-weight:850;color:var(--muted)}
+.mode-switch button.active{background:var(--card);color:var(--accent)}
+.lab-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:16px}
+.venn-card{min-width:0}
+.stage-wrap{position:relative;margin-top:12px;border:1px solid var(--border);border-radius:20px;background:
+  linear-gradient(rgba(91,91,214,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(91,91,214,.035) 1px,transparent 1px),
+  #fbfcff;background-size:24px 24px;overflow:hidden}
+#vennSvg{display:block;width:100%;height:auto;min-height:420px;touch-action:none}
+.token-layer{position:absolute;inset:0;pointer-events:none}
+.token{
+  position:absolute;transform:translate(-50%,-50%);min-width:34px;height:34px;padding:0 9px;border-radius:999px;
+  display:grid;place-items:center;font-size:13px;font-weight:900;background:#fff;border:2px solid var(--accent);
+  box-shadow:0 4px 12px rgba(30,34,60,.12);pointer-events:auto;user-select:none;touch-action:none;cursor:grab;
+}
+.token.dragging{cursor:grabbing;transform:translate(-50%,-50%) scale(1.08);z-index:50}
+.svg-label{font:800 22px Inter,system-ui,sans-serif;fill:var(--text)}
+.svg-small{font:700 14px Inter,system-ui,sans-serif;fill:var(--muted)}
+.circleA{fill:rgba(91,91,214,.08);stroke:var(--a);stroke-width:3}
+.circleB{fill:rgba(22,163,214,.08);stroke:var(--b);stroke-width:3}
+.circleC{fill:rgba(245,158,11,.08);stroke:var(--c);stroke-width:3}
+.universe{fill:none;stroke:#aab0c2;stroke-width:2}
+.highlight{fill:rgba(91,91,214,.16);stroke:none;pointer-events:none}
+.sidebar{display:grid;gap:12px}
+.card-mini{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:13px}
+.card-mini h3{font-size:15px;margin:0 0 8px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:11px;min-width:0}
+.stat .k{font-size:11px;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+.stat .v{font-size:22px;font-weight:950;margin-top:4px;overflow-wrap:anywhere}
+.region-buttons{display:flex;flex-wrap:wrap;gap:7px}
+.region-buttons button{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:8px 10px;font-size:12px;font-weight:850;color:var(--text)}
+.region-buttons button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.token-bank{display:flex;flex-wrap:wrap;gap:8px}
+.bank-chip{border:1px dashed var(--border);background:var(--card);border-radius:999px;padding:8px 10px;font-size:12px;font-weight:850}
+.primary,.ghost,.success-btn{border:0;border-radius:12px;min-height:44px;padding:10px 14px;font-weight:850}
+.primary{background:var(--accent);color:white}
+.ghost{background:var(--panel);color:var(--text);border:1px solid var(--border)}
+.success-btn{background:var(--accent2);color:white}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.learn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.learn-card{border:1px solid var(--border);background:var(--panel);border-radius:16px;padding:14px}
+.learn-card h3{margin:0 0 6px;font-size:16px}
+.learn-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.formula-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.formula-box{border:1px solid var(--border);background:var(--panel);border-radius:16px;padding:14px}
+.formula-box code{font-family:Georgia,serif;font-size:17px;color:var(--accent)}
+.solve-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.8fr);gap:16px;margin-top:12px}
+.problem{font-size:17px;line-height:1.65;font-weight:750}
+.step{display:none;border-left:4px solid var(--accent);padding:10px 12px;margin-top:10px;background:var(--panel);border-radius:0 12px 12px 0}
+.step.show{display:block}
+.answer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.answer-grid button{min-height:52px;border:1px solid var(--border);background:var(--card);border-radius:13px;font-weight:850}
+.answer-grid button.correct{border-color:var(--success);background:#ecfdf3;color:#166534}
+.answer-grid button.wrong{border-color:var(--danger);background:#fff1f4;color:#9f1239}
+.challenge-card{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px}
+.puzzle-regions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.puzzle-regions label{border:1px solid var(--border);border-radius:13px;background:var(--panel);padding:10px;font-size:12px;font-weight:800}
+.puzzle-regions input{margin-top:6px;width:100%;min-height:42px;border:1px solid var(--border);border-radius:9px;padding:8px;background:var(--card)}
+.feedback{min-height:24px;margin-top:10px;font-weight:850;font-size:13px}
+.survey-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px}
+.field{display:grid;gap:6px;margin-bottom:10px}
+.field label{font-size:12px;font-weight:850;color:var(--muted)}
+.field input,.field textarea,.field select{width:100%;min-height:44px;border:1px solid var(--border);border-radius:11px;background:var(--card);padding:10px;color:var(--text)}
+.field textarea{min-height:90px;resize:vertical}
+.survey-result{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.footer{color:var(--muted);font-size:12px;text-align:center;padding:8px 0 2px}
+.hidden{display:none!important}
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}.hero-art{display:none}.lab-grid,.solve-layout,.survey-grid,.challenge-card{grid-template-columns:1fr}
+  .learn-grid,.formula-board{grid-template-columns:1fr 1fr}.survey-result{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .app{width:min(100% - 16px,1240px);margin-top:8px}.panel{padding:14px;border-radius:18px}.hero h1{font-size:clamp(2.1rem,12vw,3.2rem)}
+  .topnav{display:flex;overflow-x:auto;scrollbar-width:none}.topnav::-webkit-scrollbar{display:none}.navbtn{flex:0 0 auto;padding-inline:14px}
+  #vennSvg{min-height:330px}.stats{grid-template-columns:1fr 1fr}.learn-grid,.formula-board{grid-template-columns:1fr}
+}
+@media(max-width:390px){
+  .stats,.survey-result,.answer-grid,.puzzle-regions{grid-template-columns:1fr}
+  #vennSvg{min-height:300px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="stack">
+    <section class="panel hero">
+      <div>
+        <div class="kicker">Class 10 • Sets</div>
+        <h1>See sets. <span>Move them.</span> Understand them.</h1>
+        <p>SetLab turns Venn diagrams into an interactive playground. Drag elements, highlight regions, solve survey problems, practise two-set and three-set cardinality, and build your own class survey.</p>
+        <div class="hero-pills">
+          <span class="pill">◎ Live Venn diagrams</span>
+          <span class="pill">↔ Drag elements</span>
+          <span class="pill">∑ Cardinality</span>
+          <span class="pill">🎯 Challenges</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="circle-a"></div><div class="circle-b"></div>
+        <div class="formula">n(A ∪ B) = n(A) + n(B) − n(A ∩ B)</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <nav class="topnav" aria-label="SetLab sections">
+        <button class="navbtn active" data-page="learn">Learn</button>
+        <button class="navbtn" data-page="explore">Explore</button>
+        <button class="navbtn" data-page="solve">Solve</button>
+        <button class="navbtn" data-page="challenge">Challenge</button>
+        <button class="navbtn" data-page="survey">Survey Lab</button>
+      </nav>
+    </section>
+
+    <section id="page-learn" class="panel page">
+      <div class="section-title">
+        <div><div class="kicker">Learn the idea first</div><h2>Sets without memorising blindly</h2></div>
+      </div>
+      <div class="learn-grid">
+        <div class="learn-card"><h3>Universal set U</h3><p>The rectangle represents all elements being considered in the problem.</p></div>
+        <div class="learn-card"><h3>Intersection A ∩ B</h3><p>Elements that belong to both A and B appear in the overlapping region.</p></div>
+        <div class="learn-card"><h3>Union A ∪ B</h3><p>Everything that belongs to A or B or both is part of the union.</p></div>
+        <div class="learn-card"><h3>Only A</h3><p>Elements in A but not in B. This is written as A − B.</p></div>
+        <div class="learn-card"><h3>Neither</h3><p>Elements inside U but outside all the sets.</p></div>
+        <div class="learn-card"><h3>Exactly one</h3><p>For two sets, exactly one means A only plus B only.</p></div>
+      </div>
+      <div class="formula-board">
+        <div class="formula-box"><div class="small">Two sets</div><code>n(A∪B)=n(A)+n(B)−n(A∩B)</code></div>
+        <div class="formula-box"><div class="small">Universal set</div><code>n(U)=n(A∪B)+n(neither)</code></div>
+        <div class="formula-box"><div class="small">Three sets</div><code>Σ singles − Σ pairwise + triple</code></div>
+      </div>
+    </section>
+
+    <section id="page-explore" class="page hidden">
+      <div class="lab-grid">
+        <section class="panel venn-card">
+          <div class="section-title">
+            <div><div class="kicker">Venn Playground</div><h2>Drag the elements</h2></div>
+            <div class="mode-switch">
+              <button id="twoSetBtn" class="active">2 Sets</button>
+              <button id="threeSetBtn">3 Sets</button>
+            </div>
+          </div>
+          <div class="stage-wrap" id="stage">
+            <svg id="vennSvg" viewBox="0 0 700 460" aria-label="Interactive Venn diagram"></svg>
+            <div class="token-layer" id="tokenLayer"></div>
+          </div>
+          <div class="small" style="margin-top:10px">Drag a number into a region. On mobile, press and drag with one finger.</div>
+        </section>
+
+        <aside class="panel sidebar">
+          <div class="card-mini">
+            <h3>Live cardinalities</h3>
+            <div class="stats" id="stats"></div>
+          </div>
+
+          <div class="card-mini">
+            <h3>Highlight a region</h3>
+            <div class="region-buttons" id="regionButtons"></div>
+          </div>
+
+          <div class="card-mini">
+            <h3>Elements</h3>
+            <div class="token-bank" id="tokenBank"></div>
+            <div class="btn-row" style="margin-top:10px">
+              <button class="ghost" id="resetTokens">Reset</button>
+              <button class="primary" id="randomTokens">Randomise</button>
+            </div>
+          </div>
+
+          <div class="card-mini">
+            <h3>What does the highlight mean?</h3>
+            <div class="small" id="regionExplain">Tap a region button to see its meaning.</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="page-solve" class="panel page hidden">
+      <div class="section-title">
+        <div><div class="kicker">Guided problem solver</div><h2>Read → model → solve</h2></div>
+        <button class="ghost" id="newProblem">New problem</button>
+      </div>
+      <div class="solve-layout">
+        <div>
+          <div class="problem" id="problemText"></div>
+          <div id="solveSteps"></div>
+          <div class="btn-row" style="margin-top:12px">
+            <button class="primary" id="nextStep">Show next step</button>
+            <button class="ghost" id="restartProblem">Restart</button>
+          </div>
+        </div>
+        <div class="card-mini">
+          <h3>Quick check</h3>
+          <div class="small" id="questionText"></div>
+          <div class="answer-grid" id="answerGrid" style="margin-top:10px"></div>
+          <div class="feedback" id="solveFeedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-challenge" class="panel page hidden">
+      <div class="section-title">
+        <div><div class="kicker">Set Detective</div><h2>Fill the missing regions</h2></div>
+        <button class="ghost" id="newChallenge">New challenge</button>
+      </div>
+      <div class="challenge-card">
+        <div>
+          <div class="problem" id="challengePrompt"></div>
+          <div class="puzzle-regions">
+            <label>A only<input id="inpAonly" type="number" inputmode="numeric"></label>
+            <label>A ∩ B<input id="inpBoth" type="number" inputmode="numeric"></label>
+            <label>B only<input id="inpBonly" type="number" inputmode="numeric"></label>
+            <label>Neither<input id="inpNeither" type="number" inputmode="numeric"></label>
+          </div>
+          <div class="btn-row" style="margin-top:12px">
+            <button class="success-btn" id="checkChallenge">Check answers</button>
+            <button class="ghost" id="hintChallenge">Hint</button>
+          </div>
+          <div class="feedback" id="challengeFeedback"></div>
+        </div>
+        <div class="card-mini">
+          <h3>Remember</h3>
+          <div class="small">For two sets:</div>
+          <p style="font-family:Georgia,serif;font-size:18px">A only = n(A) − n(A∩B)</p>
+          <p style="font-family:Georgia,serif;font-size:18px">B only = n(B) − n(A∩B)</p>
+          <p style="font-family:Georgia,serif;font-size:18px">Neither = n(U) − n(A∪B)</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-survey" class="panel page hidden">
+      <div class="section-title">
+        <div><div class="kicker">Survey Lab</div><h2>Turn your class data into a Venn diagram</h2></div>
+      </div>
+      <div class="survey-grid" style="margin-top:12px">
+        <div>
+          <div class="field"><label>Survey question</label><textarea id="surveyQuestion">Which game do you like?</textarea></div>
+          <div class="field"><label>Set A label</label><input id="surveyA" value="Cricket"></div>
+          <div class="field"><label>Set B label</label><input id="surveyB" value="Football"></div>
+          <div class="field"><label>A only</label><input id="surveyAonly" type="number" min="0" value="12"></div>
+          <div class="field"><label>Both</label><input id="surveyBoth" type="number" min="0" value="9"></div>
+          <div class="field"><label>B only</label><input id="surveyBonly" type="number" min="0" value="8"></div>
+          <div class="field"><label>Neither</label><input id="surveyNeither" type="number" min="0" value="3"></div>
+          <button class="primary" id="buildSurvey">Build survey</button>
+        </div>
+
+        <div>
+          <div class="stage-wrap">
+            <svg id="surveySvg" viewBox="0 0 700 460"></svg>
+          </div>
+          <div class="survey-result" id="surveyStats" style="margin-top:10px"></div>
+          <div class="card-mini" style="margin-top:10px">
+            <h3 id="surveyDisplayQuestion">Which game do you like?</h3>
+            <div class="small" id="surveyInsight"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">SetLab • Interactive Class 10 Sets Playground</div>
+  </div>
+</main>
+
+<script>
+(() => {
+  const qs = s => document.querySelector(s);
+  const qsa = s => [...document.querySelectorAll(s)];
+  const NS = "http://www.w3.org/2000/svg";
+
+  // Navigation
+  qsa(".navbtn").forEach(btn => btn.addEventListener("click", () => {
+    qsa(".navbtn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    qsa(".page").forEach(p => p.classList.add("hidden"));
+    qs("#page-" + btn.dataset.page).classList.remove("hidden");
+  }));
+
+  // Explore state
+  const stage = qs("#stage"), svg = qs("#vennSvg"), tokenLayer = qs("#tokenLayer");
+  const stats = qs("#stats"), regionButtons = qs("#regionButtons"), regionExplain = qs("#regionExplain"), tokenBank = qs("#tokenBank");
+  let setMode = 2;
+  let highlightMode = "";
+  const tokenValues = [1,2,3,4,5,6,7,8,9,10];
+  let tokens = [];
+
+  function svgEl(name, attrs={}) {
+    const el = document.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+    return el;
+  }
+
+  function addText(x,y,text,cls="svg-label",anchor="middle", parent=svg){
+    const t = svgEl("text",{x,y,class:cls,"text-anchor":anchor});
+    t.textContent = text; parent.appendChild(t);
+  }
+
+  function layout(){
+    svg.innerHTML = "";
+    svg.appendChild(svgEl("rect",{x:35,y:35,width:630,height:390,rx:18,class:"universe"}));
+    addText(635,62,"U","svg-label");
+    if(setMode===2){
+      svg.appendChild(svgEl("circle",{cx:285,cy:225,r:125,class:"circleA"}));
+      svg.appendChild(svgEl("circle",{cx:415,cy:225,r:125,class:"circleB"}));
+      addText(225,105,"A");
+      addText(475,105,"B");
+    }else{
+      svg.appendChild(svgEl("circle",{cx:275,cy:195,r:115,class:"circleA"}));
+      svg.appendChild(svgEl("circle",{cx:425,cy:195,r:115,class:"circleB"}));
+      svg.appendChild(svgEl("circle",{cx:350,cy:300,r:115,class:"circleC"}));
+      addText(220,80,"A");
+      addText(480,80,"B");
+      addText(350,430,"C");
+    }
+    drawHighlight();
+  }
+
+  function inCircle(x,y,cx,cy,r){return (x-cx)**2+(y-cy)**2 <= r*r}
+  function classify(x,y){
+    if(setMode===2){
+      const A=inCircle(x,y,285,225,125), B=inCircle(x,y,415,225,125);
+      if(A&&B) return "AB"; if(A) return "A"; if(B) return "B"; return "N";
+    }else{
+      const A=inCircle(x,y,275,195,115), B=inCircle(x,y,425,195,115), C=inCircle(x,y,350,300,115);
+      if(A&&B&&C) return "ABC";
+      if(A&&B) return "AB";
+      if(A&&C) return "AC";
+      if(B&&C) return "BC";
+      if(A) return "A";
+      if(B) return "B";
+      if(C) return "C";
+      return "N";
+    }
+  }
+
+  function defaultPos(i){
+    if(setMode===2){
+      const poses=[[215,200],[255,255],[350,225],[470,190],[450,265],[105,100],[580,100],[180,320],[520,335],[350,370]];
+      return poses[i%poses.length];
+    }
+    const poses=[[230,150],[470,150],[350,195],[285,275],[415,275],[350,315],[350,245],[110,110],[590,110],[105,350]];
+    return poses[i%poses.length];
+  }
+
+  function renderTokens(reset=false){
+    tokenLayer.innerHTML="";
+    if(reset || tokens.length!==tokenValues.length){
+      tokens = tokenValues.map((v,i)=>{const p=defaultPos(i);return {v,x:p[0],y:p[1]};});
+    }
+    tokens.forEach((t,i)=>{
+      const d=document.createElement("div");
+      d.className="token"; d.textContent=t.v; d.dataset.i=i;
+      placeToken(d,t.x,t.y);
+      d.addEventListener("pointerdown", startDrag);
+      tokenLayer.appendChild(d);
+    });
+    updateStats(); renderBank();
+  }
+
+  function stageCoords(clientX,clientY){
+    const r=stage.getBoundingClientRect();
+    return {x:(clientX-r.left)/r.width*700,y:(clientY-r.top)/r.height*460};
+  }
+  function placeToken(el,x,y){
+    el.style.left=(x/700*100)+"%"; el.style.top=(y/460*100)+"%";
+  }
+  function startDrag(e){
+    e.preventDefault();
+    const el=e.currentTarget, idx=+el.dataset.i;
+    el.setPointerCapture(e.pointerId); el.classList.add("dragging");
+    const move=ev=>{
+      const p=stageCoords(ev.clientX,ev.clientY);
+      tokens[idx].x=Math.max(48,Math.min(652,p.x));
+      tokens[idx].y=Math.max(48,Math.min(412,p.y));
+      placeToken(el,tokens[idx].x,tokens[idx].y); updateStats();
+    };
+    const up=ev=>{
+      el.classList.remove("dragging"); el.releasePointerCapture(ev.pointerId);
+      el.removeEventListener("pointermove",move); el.removeEventListener("pointerup",up);
+    };
+    el.addEventListener("pointermove",move); el.addEventListener("pointerup",up);
+  }
+
+  function counts(){
+    const c={A:0,B:0,C:0,AB:0,AC:0,BC:0,ABC:0,N:0};
+    tokens.forEach(t=>c[classify(t.x,t.y)]++);
+    return c;
+  }
+  function updateStats(){
+    const c=counts();
+    let items;
+    if(setMode===2){
+      const nA=c.A+c.AB, nB=c.B+c.AB, union=nA+nB-c.AB;
+      items=[["n(A)",nA],["n(B)",nB],["n(A∩B)",c.AB],["n(A∪B)",union],["A only",c.A],["B only",c.B],["Neither",c.N],["n(U)",tokens.length]];
+    }else{
+      const nA=c.A+c.AB+c.AC+c.ABC, nB=c.B+c.AB+c.BC+c.ABC, nC=c.C+c.AC+c.BC+c.ABC;
+      const union=tokens.length-c.N;
+      items=[["n(A)",nA],["n(B)",nB],["n(C)",nC],["A∩B∩C",c.ABC],["Union",union],["Neither",c.N],["n(U)",tokens.length]];
+    }
+    stats.innerHTML=items.map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+  }
+
+  function renderBank(){
+    const c=counts();
+    tokenBank.innerHTML=tokens.map(t=>`<span class="bank-chip">${t.v} → ${classify(t.x,t.y)}</span>`).join("");
+  }
+
+  function regionDefs(){
+    return setMode===2 ? [
+      ["intersection","A ∩ B","Elements in both A and B."],
+      ["union","A ∪ B","Elements in A or B or both."],
+      ["aonly","A − B","Elements in A but not in B."],
+      ["bonly","B − A","Elements in B but not in A."],
+      ["neither","Neither","Elements in U but outside A and B."]
+    ] : [
+      ["triple","A ∩ B ∩ C","Elements common to all three sets."],
+      ["union3","A ∪ B ∪ C","Everything in at least one set."],
+      ["ab","A ∩ B","Overlap of A and B, including the triple intersection."],
+      ["ac","A ∩ C","Overlap of A and C, including the triple intersection."],
+      ["bc","B ∩ C","Overlap of B and C, including the triple intersection."],
+      ["neither","Neither","Elements outside all three sets."]
+    ];
+  }
+  function renderRegionButtons(){
+    regionButtons.innerHTML="";
+    regionDefs().forEach(([id,label,exp])=>{
+      const b=document.createElement("button"); b.textContent=label;
+      if(highlightMode===id)b.classList.add("active");
+      b.onclick=()=>{highlightMode=highlightMode===id?"":id; regionExplain.textContent=highlightMode?exp:"Tap a region button to see its meaning."; renderRegionButtons(); layout();};
+      regionButtons.appendChild(b);
+    });
+  }
+
+  function drawHighlight(){
+    if(!highlightMode)return;
+    const g=svgEl("g",{opacity:"1"}); svg.insertBefore(g,svg.firstChild.nextSibling);
+    if(setMode===2){
+      if(highlightMode==="intersection"){
+        g.appendChild(svgEl("path",{d:"M 350 105 A 125 125 0 0 1 350 345 A 125 125 0 0 1 350 105 Z",class:"highlight"}));
+      }else if(highlightMode==="union"){
+        g.appendChild(svgEl("circle",{cx:285,cy:225,r:125,class:"highlight"})); g.appendChild(svgEl("circle",{cx:415,cy:225,r:125,class:"highlight"}));
+      }else if(highlightMode==="aonly"){
+        g.appendChild(svgEl("path",{d:"M 285 100 A 125 125 0 1 0 285 350 A 125 125 0 0 0 350 345 A 125 125 0 0 1 350 105 A 125 125 0 0 0 285 100 Z",class:"highlight"}));
+      }else if(highlightMode==="bonly"){
+        g.appendChild(svgEl("path",{d:"M 415 100 A 125 125 0 1 1 415 350 A 125 125 0 0 1 350 345 A 125 125 0 0 0 350 105 A 125 125 0 0 1 415 100 Z",class:"highlight"}));
+      }else if(highlightMode==="neither"){
+        g.appendChild(svgEl("rect",{x:35,y:35,width:630,height:390,rx:18,class:"highlight"}));
+      }
+    }else{
+      if(highlightMode==="union3"){
+        [[275,195],[425,195],[350,300]].forEach(([cx,cy])=>g.appendChild(svgEl("circle",{cx,cy,r:115,class:"highlight"})));
+      }else if(highlightMode==="neither"){
+        g.appendChild(svgEl("rect",{x:35,y:35,width:630,height:390,rx:18,class:"highlight"}));
+      }else{
+        const pos={triple:[350,245,55],ab:[350,170,65],ac:[310,270,65],bc:[390,270,65]}[highlightMode];
+        if(pos)g.appendChild(svgEl("circle",{cx:pos[0],cy:pos[1],r:pos[2],class:"highlight"}));
+      }
+    }
+  }
+
+  qs("#twoSetBtn").onclick=()=>{setMode=2;qs("#twoSetBtn").classList.add("active");qs("#threeSetBtn").classList.remove("active");highlightMode="";layout();renderTokens(true);renderRegionButtons();}
+  qs("#threeSetBtn").onclick=()=>{setMode=3;qs("#threeSetBtn").classList.add("active");qs("#twoSetBtn").classList.remove("active");highlightMode="";layout();renderTokens(true);renderRegionButtons();}
+  qs("#resetTokens").onclick=()=>renderTokens(true);
+  qs("#randomTokens").onclick=()=>{tokens=tokens.map(t=>({...t,x:70+Math.random()*560,y:70+Math.random()*320}));renderTokens(false);};
+
+  // Guided solver
+  const problems=[
+    {text:"In a survey of 300 people, 175 liked cricket, 150 liked football and 25 liked neither.", ask:"How many liked both games?", ans:50, opts:[25,50,75,100],
+      steps:["Let n(C∩F)=x.","Cricket only = 175 − x and Football only = 150 − x.","Use the universal total: 300 = (175−x) + x + (150−x) + 25.","So 300 = 350 − x, therefore x = 50."]},
+    {text:"Among 120 students, 30 like only Mathematics, 40 like only English and 10 like neither subject.", ask:"How many like both subjects?", ans:40, opts:[30,40,50,60],
+      steps:["Let the intersection be x.","Total = Math only + English only + both + neither.","120 = 30 + 40 + x + 10.","x = 120 − 80 = 40."]},
+    {text:"In a class of 95 students, Mathematics : Science = 4 : 5. Ten like neither and 15 like both.", ask:"How many students like at least one subject?", ans:85, opts:[70,80,85,90],
+      steps:["At least one means the union.","n(U) = n(A∪B) + neither.","95 = n(A∪B) + 10.","Therefore n(A∪B) = 85."]}
+  ];
+  let problemIndex=0, stepIndex=0;
+  function renderProblem(){
+    const p=problems[problemIndex]; qs("#problemText").textContent=p.text; qs("#questionText").textContent=p.ask; stepIndex=0; qs("#solveFeedback").textContent="";
+    qs("#solveSteps").innerHTML=p.steps.map((s,i)=>`<div class="step" data-step="${i}"><strong>Step ${i+1}</strong><div>${s}</div></div>`).join("");
+    qs("#answerGrid").innerHTML=p.opts.map(o=>`<button data-v="${o}">${o}</button>`).join("");
+    qsa("#answerGrid button").forEach(b=>b.onclick=()=>{qsa("#answerGrid button").forEach(x=>x.classList.remove("correct","wrong"));const ok=+b.dataset.v===p.ans;b.classList.add(ok?"correct":"wrong");qs("#solveFeedback").textContent=ok?"✅ Correct.":"Not yet. Use the Venn regions and try again.";});
+  }
+  qs("#nextStep").onclick=()=>{const el=qs(`[data-step="${stepIndex}"]`);if(el){el.classList.add("show");stepIndex++;}};
+  qs("#restartProblem").onclick=renderProblem;
+  qs("#newProblem").onclick=()=>{problemIndex=(problemIndex+1)%problems.length;renderProblem();};
+
+  // Challenge
+  let ch={U:100,A:55,B:45,I:20};
+  function makeChallenge(){
+    const pool=[
+      {U:100,A:55,B:45,I:20},
+      {U:180,A:95,B:80,I:35},
+      {U:250,A:140,B:120,I:50},
+      {U:90,A:48,B:40,I:18}
+    ]; ch=pool[Math.floor(Math.random()*pool.length)];
+    qs("#challengePrompt").textContent=`Given n(U) = ${ch.U}, n(A) = ${ch.A}, n(B) = ${ch.B}, and n(A ∩ B) = ${ch.I}, fill all four Venn regions.`;
+    ["#inpAonly","#inpBoth","#inpBonly","#inpNeither"].forEach(id=>qs(id).value=""); qs("#challengeFeedback").textContent="";
+  }
+  qs("#checkChallenge").onclick=()=>{
+    const a=ch.A-ch.I,b=ch.B-ch.I,both=ch.I,neither=ch.U-(a+b+both);
+    const vals=[+qs("#inpAonly").value,+qs("#inpBoth").value,+qs("#inpBonly").value,+qs("#inpNeither").value];
+    const ok=vals[0]===a&&vals[1]===both&&vals[2]===b&&vals[3]===neither;
+    qs("#challengeFeedback").textContent=ok?"✅ Perfect — every region is correct.":`Try again. Hint: start with the intersection (${both}), then subtract it from n(A) and n(B).`;
+    qs("#challengeFeedback").style.color=ok?"var(--success)":"var(--danger)";
+  };
+  qs("#hintChallenge").onclick=()=>qs("#challengeFeedback").textContent="Hint: A only = n(A) − n(A∩B). Do the same for B.";
+  qs("#newChallenge").onclick=makeChallenge;
+
+  // Survey
+  function surveyBuild(){
+    const A=qs("#surveyA").value||"A",B=qs("#surveyB").value||"B";
+    const ao=Math.max(0,+qs("#surveyAonly").value||0), both=Math.max(0,+qs("#surveyBoth").value||0), bo=Math.max(0,+qs("#surveyBonly").value||0), neither=Math.max(0,+qs("#surveyNeither").value||0);
+    const total=ao+both+bo+neither, union=ao+both+bo;
+    const s=qs("#surveySvg"); s.innerHTML="";
+    s.appendChild(svgEl("rect",{x:35,y:35,width:630,height:390,rx:18,class:"universe"}));
+    s.appendChild(svgEl("circle",{cx:285,cy:225,r:125,class:"circleA"})); s.appendChild(svgEl("circle",{cx:415,cy:225,r:125,class:"circleB"}));
+    addText(220,105,A,"svg-label","middle",s); addText(480,105,B,"svg-label","middle",s); addText(635,62,"U","svg-label","middle",s);
+    addText(235,230,String(ao),"svg-label","middle",s); addText(350,230,String(both),"svg-label","middle",s); addText(465,230,String(bo),"svg-label","middle",s); addText(590,360,String(neither),"svg-label","middle",s);
+    qs("#surveyStats").innerHTML=[["Total",total],["At least one",union],["Exactly one",ao+bo],["Both",both]].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+    qs("#surveyDisplayQuestion").textContent=qs("#surveyQuestion").value;
+    qs("#surveyInsight").textContent=`${union} students chose at least one option, ${ao+bo} chose exactly one, ${both} chose both, and ${neither} chose neither.`;
+  }
+  qs("#buildSurvey").onclick=surveyBuild;
+
+  layout(); renderTokens(true); renderRegionButtons(); renderProblem(); makeChallenge(); surveyBuild();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#5b5bd6">
+<title>Algebraic Fraction — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css"></head>
+<body><main class="app">
+<section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Chapter 8 • Algebraic Fraction</div><h1>Algebraic <span>Fraction</span></h1><p>See factorisation and cancellation as structure, not magic.</p></div><div class="hero-art"><div class="hero-symbol">÷</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
+<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
+<section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Safe simplification</div><h2>Factor first, cancel factors</h2></div></div><div class="learn-grid">
+<div class="learn-card"><h3>Factor numerator</h3><p>Rewrite sums/differences as products when possible.</p></div><div class="learn-card"><h3>Factor denominator</h3><p>Cancellation is only valid for common factors.</p></div><div class="learn-card"><h3>Restrictions</h3><p>Values that make an original denominator zero are excluded.</p></div>
+</div></section>
+<section id="page-explore" class="panel page hidden"><div class="grid2"><aside class="panel"><div class="controls"><div class="control"><label>Choose an expression</label><select id="afEx"><option value="0">(x²−9)/(x−3)</option><option value="1">(x²+5x+6)/(x+2)</option><option value="2">(x²−4x)/(x)</option><option value="3">(x²−1)/(x²+x)</option></select></div></div></aside><section class="panel"><div class="challenge"><div class="kicker">Original</div><div id="afOrig" class="formula"></div></div><div class="challenge"><div class="kicker">Factorised</div><div id="afFact" class="formula"></div></div><div class="challenge"><div class="kicker">Simplified</div><div id="afSimp" class="formula"></div><div id="afRest" class="small" style="margin-top:7px"></div></div></section></div></section>
+<section id="page-practice" class="panel page hidden"><div class="challenge"><div class="problem">Why can we cancel (x−3) in (x−3)(x+3)/(x−3), but not cancel the 3 in (x+3)/x?</div><button id="afWhy" class="primary" style="margin-top:10px">Explain</button><div id="afWhyText" class="feedback"></div></div></section>
+<section id="page-challenge" class="panel page hidden"><div class="challenge"><div class="problem">Simplify (x²−16)/(x−4).</div><input id="afAns" type="text" placeholder="Example: x+4" style="margin-top:10px"><div class="btnrow"><button class="green" id="afCheck">Check</button></div><div id="afFb" class="feedback"></div></div></section>
+<footer>MathLab 10 • Algebraic Fraction</footer></main>
+<script>
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById("page-"+b.dataset.page).classList.remove("hidden")}));
+
+const af$=s=>document.querySelector(s);const ex=[["(x²−9)/(x−3)","(x−3)(x+3)/(x−3)","x+3","x ≠ 3"],["(x²+5x+6)/(x+2)","(x+2)(x+3)/(x+2)","x+3","x ≠ −2"],["(x²−4x)/x","x(x−4)/x","x−4","x ≠ 0"],["(x²−1)/(x²+x)","(x−1)(x+1)/[x(x+1)]","(x−1)/x","x ≠ 0, −1"]];
+function afRender(){let e=ex[+af$("#afEx").value];af$("#afOrig").textContent=e[0];af$("#afFact").textContent=e[1];af$("#afSimp").textContent=e[2];af$("#afRest").textContent="Restriction: "+e[3]}af$("#afEx").onchange=afRender;af$("#afWhy").onclick=()=>af$("#afWhyText").textContent="Cancellation removes a common multiplicative factor. Terms joined by + or − are not separate factors.";af$("#afCheck").onclick=()=>{let v=af$("#afAns").value.replace(/\s/g,"").toLowerCase();af$("#afFb").textContent=(v==="x+4"||v==="4+x")?"✅ Correct. Since x²−16=(x−4)(x+4).":"Factor the difference of squares first.";};afRender();
+
+</script></body></html>

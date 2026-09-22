@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#5b5bd6">
+<title>Currency & Exchange Rate — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css"></head>
+<body><main class="app">
+<section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Lesson 4 • Currency and Exchange Rate</div><h1>Currency <span>& Exchange Rate</span></h1><p>Understand buying rate, selling rate and chain conversion through a virtual exchange counter.</p></div><div class="hero-art"><div class="hero-symbol">⇄</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
+<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
+<section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Key language</div><h2>Think like a money changer</h2></div></div><div class="learn-grid">
+<div class="learn-card"><h3>Buying rate</h3><p>The rate used when the bank or money changer buys foreign currency from you.</p></div>
+<div class="learn-card"><h3>Selling rate</h3><p>The rate used when the bank or money changer sells foreign currency to you.</p></div>
+<div class="learn-card"><h3>NPR → foreign currency</h3><p>You are buying foreign currency, so use the selling rate.</p><span class="formula">Foreign = NPR ÷ selling rate</span></div>
+<div class="learn-card"><h3>Foreign → NPR</h3><p>You are selling foreign currency, so use the buying rate.</p><span class="formula">NPR = foreign × buying rate</span></div>
+<div class="learn-card"><h3>Cross currency</h3><p>Convert through NPR or use a consistent chain rule.</p></div>
+<div class="learn-card"><h3>Spread</h3><p>Selling rate is normally greater than buying rate. The difference is the spread.</p></div>
+</div></section>
+<section id="page-explore" class="panel page hidden"><div class="grid2"><aside class="panel"><div class="section-head"><div><div class="kicker">Exchange desk</div><h2>Convert currency</h2></div></div><div class="controls" style="margin-top:12px">
+<div class="control"><label>Currency</label><select id="fxCur"><option value="USD">US Dollar</option><option value="GBP">Pound Sterling</option><option value="EUR">Euro</option><option value="JPY">Japanese Yen (10 units)</option><option value="AUD">Australian Dollar</option></select></div>
+<div class="control"><label>Direction</label><select id="fxDir"><option value="toNPR">Foreign → NPR</option><option value="fromNPR">NPR → Foreign</option></select></div>
+<div class="control"><label>Amount</label><input id="fxAmt" type="number" value="500" min="0" step="1"></div>
+</div></aside><section class="panel"><div class="metrics" id="fxMetrics"></div><div class="visual"><div class="section-head"><div><div class="kicker">Reference table</div><h2>Editable textbook-style rates</h2></div></div><div class="tablewrap"><table class="table"><thead><tr><th>Currency</th><th>Unit</th><th>Buying</th><th>Selling</th></tr></thead><tbody id="fxTable"></tbody></table></div></div></section></div></section>
+<section id="page-practice" class="panel page hidden"><div class="section-head"><div><div class="kicker">Practice</div><h2>Which rate should you use?</h2></div></div><div class="challenge"><div class="problem">You have Nepali rupees and want to buy US dollars from a bank. Which rate applies?</div><div class="btnrow"><button class="ghost fxOpt">Buying rate</button><button class="ghost fxOpt" data-good="1">Selling rate</button></div><div id="fxPracticeFb" class="feedback"></div></div></section>
+<section id="page-challenge" class="panel page hidden"><div class="section-head"><div><div class="kicker">Cross-currency challenge</div><h2>Convert through NPR</h2></div></div><div class="challenge"><div class="problem">Using the reference rates, how many Japanese Yen can be obtained from 1 Canadian Dollar if CAD buying rate is Rs. 98.08 and 10 JPY selling rate is Rs. 9.37?</div><input id="fxAns" type="number" step=".01" style="margin-top:10px"><div class="btnrow"><button class="green" id="fxCheck">Check</button></div><div id="fxFb" class="feedback"></div></div></section>
+<footer>MathLab 10 • Currency & Exchange Rate</footer></main>
+<script>
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById("page-"+b.dataset.page).classList.remove("hidden")}));
+
+const f$=s=>document.querySelector(s);
+const rates={USD:{u:1,b:127.35,s:127.95},GBP:{u:1,b:150.94,s:151.65},EUR:{u:1,b:128.13,s:128.73},JPY:{u:10,b:9.16,s:9.37},AUD:{u:1,b:87.82,s:88.23}};
+function fxRender(){let c=f$("#fxCur").value,d=f$("#fxDir").value,a=+f$("#fxAmt").value,r=rates[c],res,used;if(d==="toNPR"){res=a/r.u*r.b;used=`Buying rate Rs. ${r.b} per ${r.u} ${c}`}else{res=a/r.s*r.u;used=`Selling rate Rs. ${r.s} per ${r.u} ${c}`}
+f$("#fxMetrics").innerHTML=[["Input",a.toLocaleString()+" "+(d==="toNPR"?c:"NPR")],["Result",res.toLocaleString(undefined,{maximumFractionDigits:2})+" "+(d==="toNPR"?"NPR":c)],["Rate used",used],["Spread",(r.s-r.b).toFixed(2)]].map((x,i)=>`<div class="metric ${i===1?"primary":""}"><div class="k">${x[0]}</div><div class="v" style="${i===2?'font-size:14px':''}">${x[1]}</div></div>`).join("")}
+f$("#fxTable").innerHTML=Object.entries(rates).map(([k,r])=>`<tr><td>${k}</td><td>${r.u}</td><td>${r.b}</td><td>${r.s}</td></tr>`).join("");
+["#fxCur","#fxDir","#fxAmt"].forEach(id=>f$(id).oninput=fxRender);
+document.querySelectorAll(".fxOpt").forEach(b=>b.onclick=()=>f$("#fxPracticeFb").textContent=b.dataset.good?"✅ Correct — you are buying foreign currency from the bank.":"Not this one. Think from the bank's point of view.");
+f$("#fxCheck").onclick=()=>{let ans=98.08/9.37*10,ok=Math.abs(+f$("#fxAns").value-ans)<.05;f$("#fxFb").textContent=ok?`✅ Correct — about ${ans.toFixed(2)} JPY.`:"Try: convert CAD to NPR using the CAD buying rate, then NPR to JPY using the JPY selling rate."};fxRender();
+
+</script></body></html>
