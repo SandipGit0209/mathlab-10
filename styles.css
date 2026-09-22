@@ -1,0 +1,65 @@
+:root{
+  --bg:#f6f7fb;--card:#fff;--panel:#f0f2f8;--text:#15172a;--muted:#70758a;
+  --border:#e2e5ef;--accent:#5b5bd6;--accent2:#18a37a;--warm:#f59e0b;
+  --shadow:0 18px 48px rgba(28,34,65,.09);--radius:24px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-width:320px;background:
+ radial-gradient(circle at 0 0,rgba(91,91,214,.10),transparent 28rem),
+ radial-gradient(circle at 100% 7%,rgba(24,163,122,.08),transparent 24rem),var(--bg);
+ color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{text-decoration:none;color:inherit}button,input{font:inherit}
+button{cursor:pointer}
+.app{width:min(1240px,calc(100% - 24px));margin:16px auto 38px;display:grid;gap:16px}
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:24px;padding:28px;border:1px solid var(--border);border-radius:30px;background:rgba(255,255,255,.94);box-shadow:var(--shadow);overflow:hidden}
+.brandline{display:flex;align-items:center;gap:10px;font-weight:900;margin-bottom:26px}
+.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--accent);color:#fff;font-family:Georgia,serif;font-size:23px}
+.eyebrow{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(2.5rem,6vw,5.5rem);line-height:.91;letter-spacing:-.065em;margin:8px 0 0;font-weight:950}
+.hero h1 span{color:var(--accent)}
+.hero p{max-width:730px;color:var(--muted);font-size:16px;line-height:1.65;margin:17px 0 0}
+.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.primary-btn,.ghost-btn{min-height:48px;border-radius:14px;padding:12px 16px;font-weight:850}
+.primary-btn{background:var(--accent);color:#fff}
+.ghost-btn{border:1px solid var(--border);background:var(--panel);color:var(--text)}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;color:var(--muted);font-size:12px;font-weight:800}
+.hero-pills span{padding:7px 10px;border-radius:999px;border:1px solid var(--border);background:#fff}
+.hero-visual{min-height:390px;border-radius:24px;background:linear-gradient(145deg,#edf0ff,#edfaf6);position:relative;overflow:hidden}
+.orb{position:absolute;width:150px;height:150px;border-radius:50%;display:grid;place-items:center;font-weight:950;font-size:25px;border:3px solid;background:rgba(255,255,255,.45)}
+.orb.one{left:34px;top:66px;color:var(--accent);border-color:var(--accent)}
+.orb.two{right:35px;top:120px;color:#0d93c5;border-color:#0d93c5}
+.orb.three{left:130px;bottom:48px;color:var(--warm);border-color:var(--warm)}
+.mini-board{position:absolute;left:24px;right:24px;bottom:18px;background:rgba(255,255,255,.85);border:1px solid var(--border);border-radius:13px;padding:10px;text-align:center;font-size:12px;font-weight:850}
+.progress-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.progress-strip div{background:#fff;border:1px solid var(--border);border-radius:18px;padding:15px;display:flex;gap:10px;align-items:baseline;box-shadow:var(--shadow)}
+.progress-strip strong{font-size:28px}.progress-strip span{font-size:12px;color:var(--muted);font-weight:800}
+.chapter-section,.learning-flow,.teacher-panel{background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.section-head h2,.teacher-panel h2{margin:4px 0 0;font-size:28px;letter-spacing:-.04em}
+.section-head p,.teacher-panel p{max-width:760px;color:var(--muted);font-size:13px;line-height:1.6;margin:7px 0 0}
+.search-wrap input{min-height:44px;border:1px solid var(--border);border-radius:12px;padding:0 12px;background:var(--panel);color:var(--text);min-width:220px}
+.chapter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.chapter-card{border:1px solid var(--border);border-radius:18px;padding:15px;background:var(--panel);min-width:0;transition:.18s ease;display:flex;flex-direction:column;min-height:210px}
+.chapter-card.ready{background:linear-gradient(145deg,#f4f3ff,#f0fbf7);border-color:#cbc9ff}
+.chapter-top{display:flex;align-items:center;justify-content:space-between}
+.chapter-num{font-size:11px;font-weight:950;color:var(--muted);letter-spacing:.1em}
+.chapter-icon{font-size:28px}
+.chapter-card h3{margin:18px 0 6px;font-size:18px;letter-spacing:-.025em}
+.chapter-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+.chapter-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:18px}
+.status{font-size:11px;font-weight:900;color:var(--accent)}
+.arrow{font-size:20px}
+.chapter-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(28,34,65,.10)}
+.flow-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:15px}
+.flow-grid article{border:1px solid var(--border);border-radius:16px;padding:14px;background:var(--panel)}
+.flow-grid b{width:30px;height:30px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center}
+.flow-grid h3{font-size:15px;margin:12px 0 4px}.flow-grid p{font-size:12px;line-height:1.5;color:var(--muted);margin:0}
+.teacher-panel{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:center}
+.teacher-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.teacher-list span{border:1px solid var(--border);border-radius:13px;padding:11px;background:var(--panel);font-size:12px;font-weight:850}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:8px 0}
+@media(max-width:1000px){.chapter-grid{grid-template-columns:repeat(3,1fr)}.flow-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.hero-visual{display:none}.chapter-grid{grid-template-columns:repeat(2,1fr)}.teacher-panel{grid-template-columns:1fr}.flow-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.app{width:min(100% - 16px,1240px);margin-top:8px}.hero,.chapter-section,.learning-flow,.teacher-panel{padding:14px;border-radius:18px}.hero h1{font-size:clamp(2.4rem,13vw,3.6rem)}.progress-strip{grid-template-columns:1fr}.chapter-grid{grid-template-columns:1fr}.flow-grid,.teacher-list{grid-template-columns:1fr}.search-wrap,.search-wrap input{width:100%}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}

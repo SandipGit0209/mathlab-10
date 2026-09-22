@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5b5bd6">
+<meta name="description" content="MathLab 10 — Interactive Class 10 Mathematics learning labs">
+<title>MathLab 10 — Interactive Mathematics</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="app">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="brandline"><span class="logo">π</span><span>MathLab 10</span></div>
+      <div class="eyebrow">Interactive Class 10 Mathematics</div>
+      <h1>Don't just read maths.<br><span>Experiment with it.</span></h1>
+      <p>Explore every chapter through interactive diagrams, simulations, guided problem solving, challenges and classroom activities.</p>
+      <div class="hero-actions">
+        <a class="primary-btn" href="#chapters">Explore chapters</a>
+        <button class="ghost-btn" id="randomChapter">Surprise me</button>
+      </div>
+      <div class="hero-pills">
+        <span>◎ Visual learning</span><span>↔ Interactive</span><span>🎯 Challenges</span><span>📱 Mobile friendly</span>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="orb one">A∩B</div><div class="orb two">πr²</div><div class="orb three">Sₙ</div>
+      <div class="mini-board">Learn → Explore → Solve → Challenge</div>
+    </div>
+  </section>
+
+  <section class="progress-strip">
+    <div><strong>2</strong><span>labs live</span></div>
+    <div><strong>14</strong><span>chapters mapped</span></div>
+    <div><strong>1</strong><span>learning ecosystem</span></div>
+  </section>
+
+  <section id="chapters" class="chapter-section">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Curriculum map</div>
+        <h2>Choose a chapter</h2>
+        <p>Sets and Area & Volume are already interactive. The other chapter cards are wired into the same platform structure for the next build phases.</p>
+      </div>
+      <div class="search-wrap">
+        <input id="chapterSearch" type="search" placeholder="Search chapter…">
+      </div>
+    </div>
+    <div class="chapter-grid" id="chapterGrid">
+      <a class="chapter-card ready" href="modules/sets/index.html" data-title="sets">
+      <div class="chapter-top"><span class="chapter-num">01</span><span class="chapter-icon">◎</span></div>
+      <h3>Sets</h3>
+      <p>Interactive Venn diagrams, cardinality, survey problems</p>
+      <div class="chapter-foot"><span class="status">Open Lab</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=2" data-title="compound interest">
+      <div class="chapter-top"><span class="chapter-num">02</span><span class="chapter-icon">₹</span></div>
+      <h3>Compound Interest</h3>
+      <p>Bank simulator, yearly/half-yearly/quarterly growth</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=3" data-title="growth & depreciation">
+      <div class="chapter-top"><span class="chapter-num">03</span><span class="chapter-icon">↗</span></div>
+      <h3>Growth & Depreciation</h3>
+      <p>Population, price and depreciation visual simulator</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=4" data-title="currency & exchange rate">
+      <div class="chapter-top"><span class="chapter-num">04</span><span class="chapter-icon">⇄</span></div>
+      <h3>Currency & Exchange Rate</h3>
+      <p>Buying/selling rate and currency conversion lab</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card ready" href="modules/mensuration/index.html" data-title="area & volume">
+      <div class="chapter-top"><span class="chapter-num">05</span><span class="chapter-icon">⬡</span></div>
+      <h3>Area & Volume</h3>
+      <p>2D, 3D and combined solids with live dimensions</p>
+      <div class="chapter-foot"><span class="status">Open Lab</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=6" data-title="sequence & series">
+      <div class="chapter-top"><span class="chapter-num">06</span><span class="chapter-icon">∑</span></div>
+      <h3>Sequence & Series</h3>
+      <p>AP/GP pattern explorer and missing-term challenges</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=7" data-title="quadratic equation">
+      <div class="chapter-top"><span class="chapter-num">07</span><span class="chapter-icon">ƒ</span></div>
+      <h3>Quadratic Equation</h3>
+      <p>Parabola, roots and discriminant explorer</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=8" data-title="algebraic fraction">
+      <div class="chapter-top"><span class="chapter-num">08</span><span class="chapter-icon">÷</span></div>
+      <h3>Algebraic Fraction</h3>
+      <p>Factor, simplify and cancellation visual lab</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=9" data-title="indices">
+      <div class="chapter-top"><span class="chapter-num">09</span><span class="chapter-icon">xⁿ</span></div>
+      <h3>Indices</h3>
+      <p>Exponent rules and index-law puzzle lab</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=10" data-title="triangles & quadrilaterals">
+      <div class="chapter-top"><span class="chapter-num">10</span><span class="chapter-icon">△</span></div>
+      <h3>Triangles & Quadrilaterals</h3>
+      <p>Drag vertices and observe properties live</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=11" data-title="construction">
+      <div class="chapter-top"><span class="chapter-num">11</span><span class="chapter-icon">✥</span></div>
+      <h3>Construction</h3>
+      <p>Virtual ruler-and-compass construction studio</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=12" data-title="circle">
+      <div class="chapter-top"><span class="chapter-num">12</span><span class="chapter-icon">○</span></div>
+      <h3>Circle</h3>
+      <p>Chord, tangent, arc and angle explorer</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=13" data-title="statistics">
+      <div class="chapter-top"><span class="chapter-num">13</span><span class="chapter-icon">▥</span></div>
+      <h3>Statistics</h3>
+      <p>Enter data, build charts, mean/median/mode lab</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+<a class="chapter-card planned" href="chapter.html?c=14" data-title="probability">
+      <div class="chapter-top"><span class="chapter-num">14</span><span class="chapter-icon">🎲</span></div>
+      <h3>Probability</h3>
+      <p>Coins, dice, spinners and experimental probability</p>
+      <div class="chapter-foot"><span class="status">Roadmap ready</span><span class="arrow">→</span></div>
+    </a>
+    </div>
+  </section>
+
+  <section class="learning-flow">
+    <div class="section-head">
+      <div><div class="eyebrow">Same flow in every chapter</div><h2>One learning pattern students remember</h2></div>
+    </div>
+    <div class="flow-grid">
+      <article><b>1</b><h3>Learn</h3><p>Short ideas, vocabulary and formulas with visual meaning.</p></article>
+      <article><b>2</b><h3>Explore</h3><p>Change values, drag objects and see mathematics respond live.</p></article>
+      <article><b>3</b><h3>Solve</h3><p>Guided textbook-style problems broken into meaningful steps.</p></article>
+      <article><b>4</b><h3>Challenge</h3><p>Random questions, hints, streaks and quick checks.</p></article>
+      <article><b>5</b><h3>Real-life Lab</h3><p>Survey, measure, simulate or collect actual classroom data.</p></article>
+    </div>
+  </section>
+
+  <section class="teacher-panel">
+    <div>
+      <div class="eyebrow">Built for classroom use</div>
+      <h2>Teacher Mode</h2>
+      <p>Each module will support random examples, answer reveal, diagram-only projection, quick classroom challenges and custom values.</p>
+    </div>
+    <div class="teacher-list">
+      <span>✓ Projector friendly</span><span>✓ Mobile friendly</span><span>✓ No login required</span><span>✓ GitHub Pages ready</span>
+    </div>
+  </section>
+
+  <footer>MathLab 10 • Interactive mathematics for secondary classrooms</footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
