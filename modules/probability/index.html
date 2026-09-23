@@ -1,19 +1,531 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#5b5bd6">
-<title>Probability — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css"></head>
+<title>Probability — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css">
+<style>
+.tree-layout{display:grid;grid-template-columns:minmax(250px,.72fr) minmax(0,1.28fr);gap:14px}
+.tree-mode{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:var(--panel);padding:5px;border-radius:12px;margin-top:8px}
+.tree-mode button{border:0;background:transparent;border-radius:9px;min-height:42px;font-weight:850;color:var(--muted)}
+.tree-mode button.active{background:var(--accent);color:#fff}
+.ball-bank{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;min-height:42px}
+.ball{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:10px;font-weight:900;box-shadow:inset 0 -4px 8px rgba(0,0,0,.12)}
+.ball.red{background:#e65e77}.ball.blue{background:#149ec6}
+.tree-svg{min-height:390px!important}
+.tree-line{stroke:#9197aa;stroke-width:3;fill:none}.tree-line.red{stroke:#e65e77}.tree-line.blue{stroke:#149ec6}
+.tree-node{fill:#fff;stroke-width:3}.tree-node.red{stroke:#e65e77}.tree-node.blue{stroke:#149ec6}.tree-node.start{stroke:#5b5bd6}
+.tree-label{font:800 13px Inter,system-ui,sans-serif;fill:#17192b}.tree-prob{font:700 12px Inter,system-ui,sans-serif;fill:#70758a}
+.outcome-card{border:1px solid var(--border);background:#fff;border-radius:13px;padding:10px}.outcome-card strong{font-size:16px}
+.outcome-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.event-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.tree-note{border-left:4px solid var(--accent);background:var(--panel);border-radius:0 12px 12px 0;padding:11px 12px;margin-top:10px;font-size:12px;line-height:1.55;color:var(--muted)}
+.path-table td:nth-child(2),.path-table td:nth-child(3){font-family:Georgia,serif;font-size:15px}
+@media(max-width:880px){.tree-layout{grid-template-columns:1fr}.outcome-grid{grid-template-columns:1fr 1fr}.event-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.outcome-grid,.event-grid{grid-template-columns:1fr}.tree-mode{grid-template-columns:1fr}.tree-svg{min-height:320px!important}}
+
+.card-lab-layout{display:grid;grid-template-columns:minmax(260px,.7fr) minmax(0,1.3fr);gap:14px}
+.deck-grid{display:grid;grid-template-columns:repeat(13,minmax(40px,1fr));gap:5px;min-width:620px;margin-top:10px}
+.play-card{aspect-ratio:2.5/3.5;border:1px solid var(--border);background:#fff;border-radius:7px;padding:4px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;font-size:11px;font-weight:900;transition:.15s ease;opacity:.32}
+.play-card.red{color:#d9435f}.play-card.black{color:#17192b}
+.play-card.hit{opacity:1;border-width:2px;transform:translateY(-1px);box-shadow:0 4px 10px rgba(20,25,45,.08)}
+.play-card .suit{font-size:16px;align-self:center}.play-card .rank{font-size:10px}
+.deck-scroll{overflow-x:auto;padding-bottom:4px}
+.deck-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.deck-legend span{font-size:11px;font-weight:850;padding:6px 8px;border-radius:999px;border:1px solid var(--border);background:#fff}
+.card-event-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.card-event-grid .metric .v{font-size:19px}
+.card-step{border-left:4px solid var(--accent);background:var(--panel);border-radius:0 12px 12px 0;padding:11px 12px;margin-top:10px;font-size:12px;line-height:1.6}
+.card-anatomy{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.card-anatomy .mini{text-align:center}
+.suit-big{font-size:30px;line-height:1}
+.card-two-mode{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:var(--panel);padding:5px;border-radius:12px;margin-top:8px}
+.card-two-mode button{border:0;background:transparent;border-radius:9px;min-height:42px;font-weight:850;color:var(--muted)}
+.card-two-mode button.active{background:var(--accent);color:#fff}
+@media(max-width:900px){.card-lab-layout{grid-template-columns:1fr}.card-anatomy{grid-template-columns:1fr 1fr}.card-event-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.card-anatomy,.card-event-grid,.card-two-mode{grid-template-columns:1fr}}
+
+</style>
+
+</head>
 <body><main class="app">
 <section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Chapter 14 • Probability</div><h1>Probability <span></span></h1><p>Run real random experiments and compare theoretical probability with experimental frequency.</p></div><div class="hero-art"><div class="hero-symbol">🎲</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
-<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
-<section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Chance</div><h2>Theory versus experiment</h2></div></div><div class="learn-grid">
-<div class="learn-card"><h3>Theoretical probability</h3><span class="formula">P(E)=favourable outcomes / total outcomes</span></div><div class="learn-card"><h3>Experimental probability</h3><span class="formula">frequency of E / number of trials</span></div><div class="learn-card"><h3>Range</h3><span class="formula">0 ≤ P(E) ≤ 1</span></div></div></section>
+<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="tree">Tree Diagram</button><button class="tab" data-page="cards">Deck of Cards</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
+<section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Chance</div><h2>Theory, experiment and tree diagrams</h2></div></div><div class="learn-grid">
+<div class="learn-card"><h3>Theoretical probability</h3><span class="formula">P(E)=favourable outcomes / total outcomes</span></div>
+<div class="learn-card"><h3>Experimental probability</h3><span class="formula">frequency of E / number of trials</span></div>
+<div class="learn-card"><h3>Range</h3><span class="formula">0 ≤ P(E) ≤ 1</span></div>
+<div class="learn-card"><h3>Tree diagram</h3><p>Each branch represents a possible outcome. Multiply probabilities along a path.</p><span class="formula">P(A then B)=P(A)×P(B|A)</span></div>
+<div class="learn-card"><h3>With replacement</h3><p>The selected object is returned before the next draw, so the composition and branch probabilities stay unchanged.</p></div>
+<div class="learn-card"><h3>Without replacement</h3><p>The selected object is not returned. The total decreases by one and the second-stage branch probabilities change.</p>
+<div class="learn-card"><h3>Standard deck</h3><p>A standard deck has 52 cards: 4 suits × 13 cards.</p><span class="formula">52 = 4 × 13</span></div>
+<div class="learn-card"><h3>Red and black cards</h3><p>Hearts and diamonds are red; clubs and spades are black.</p><span class="formula">26 red + 26 black</span></div>
+<div class="learn-card"><h3>Face cards</h3><p>J, Q and K are face cards. There are 3 per suit, so 12 face cards in total.</p><span class="formula">12 = 3 × 4</span></div>
+</div>
+</div></section>
 <section id="page-explore" class="panel page hidden"><div class="grid2"><aside class="panel"><div class="control"><label>Experiment</label><select id="prType"><option value="coin">Coin</option><option value="die">Die</option></select></div><div class="btnrow"><button class="primary" data-run="1">Run 1</button><button class="ghost" data-run="10">Run 10</button><button class="ghost" data-run="100">Run 100</button><button class="ghost" data-run="1000">Run 1000</button><button class="warn" id="prReset">Reset</button></div></aside><section class="panel"><div class="metrics" id="prMetrics"></div><div class="visual"><svg id="prSvg" viewBox="0 0 700 330"></svg></div></section></div></section>
-<section id="page-practice" class="panel page hidden"><div class="challenge"><div class="problem">For a fair die, what is the probability of getting an even number?</div><input id="prAns" type="text" placeholder="Example: 1/2" style="margin-top:10px"><div class="btnrow"><button id="prCheck" class="green">Check</button></div><div id="prFb" class="feedback"></div></div></section>
-<section id="page-challenge" class="panel page hidden"><div class="challenge"><div class="problem">Why does experimental probability usually get closer to theoretical probability when the number of trials becomes large?</div><button id="prExplain" class="primary" style="margin-top:10px">Explain</button><div id="prExp" class="feedback"></div></div></section>
+
+<section id="page-tree" class="page hidden">
+  <div class="tree-layout">
+    <aside class="panel">
+      <div class="section-head"><div><div class="kicker">Two-draw experiment</div><h2>Build the bag</h2></div></div>
+      <div class="control" style="margin-top:12px">
+        <div class="control-top"><label>Red balls</label><div class="valuebox"><input id="treeRed" type="number" min="1" max="10" value="3"></div></div>
+        <input id="treeRedRange" type="range" min="1" max="10" value="3">
+      </div>
+      <div class="control">
+        <div class="control-top"><label>Blue balls</label><div class="valuebox"><input id="treeBlue" type="number" min="1" max="10" value="2"></div></div>
+        <input id="treeBlueRange" type="range" min="1" max="10" value="2">
+      </div>
+      <div class="control">
+        <label>After the first draw</label>
+        <div class="tree-mode">
+          <button id="withBtn" class="active" type="button">With replacement</button>
+          <button id="withoutBtn" type="button">Without replacement</button>
+        </div>
+      </div>
+      <div class="mini">
+        <h3>Bag contents</h3>
+        <div id="ballBank" class="ball-bank"></div>
+        <div id="treeModeExplain" class="small" style="margin-top:8px"></div>
+      </div>
+      <div class="tree-note" id="treeRule"></div>
+    </aside>
+
+    <section class="panel">
+      <div class="section-head">
+        <div><div class="kicker">Live tree diagram</div><h2>Multiply along each path</h2></div>
+        <span class="small" id="treeTotalCheck"></span>
+      </div>
+      <div class="visual">
+        <svg id="treeSvg" class="tree-svg" viewBox="0 0 760 430" aria-label="Probability tree diagram"></svg>
+      </div>
+      <div class="outcome-grid" id="treeOutcomes"></div>
+      <div class="event-grid" id="treeEvents"></div>
+      <div class="visual">
+        <div class="small">Path calculation table</div>
+        <div class="tablewrap">
+          <table class="table path-table">
+            <thead><tr><th>Outcome</th><th>Branch 1</th><th>Branch 2</th><th>Path probability</th></tr></thead>
+            <tbody id="treeRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+
+<section id="page-cards" class="page hidden">
+  <div class="card-lab-layout">
+    <aside class="panel">
+      <div class="section-head"><div><div class="kicker">Deck anatomy</div><h2>Know the 52-card deck</h2></div></div>
+
+      <div class="card-anatomy">
+        <div class="mini"><div class="suit-big" style="color:#d9435f">♥</div><h3>Hearts</h3><p>13 red cards</p></div>
+        <div class="mini"><div class="suit-big" style="color:#d9435f">♦</div><h3>Diamonds</h3><p>13 red cards</p></div>
+        <div class="mini"><div class="suit-big">♣</div><h3>Clubs</h3><p>13 black cards</p></div>
+        <div class="mini"><div class="suit-big">♠</div><h3>Spades</h3><p>13 black cards</p></div>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <h3>Important counts</h3>
+        <div class="small">52 total • 26 red • 26 black • 4 aces • 4 kings • 4 queens • 4 jacks • 12 face cards</div>
+      </div>
+
+      <div class="control" style="margin-top:10px">
+        <label>Highlight a one-card event</label>
+        <select id="cardEvent" style="margin-top:8px">
+          <option value="red">A red card</option>
+          <option value="black">A black card</option>
+          <option value="heart">A heart</option>
+          <option value="spade">A spade</option>
+          <option value="ace">An ace</option>
+          <option value="king">A king</option>
+          <option value="face">A face card (J, Q, K)</option>
+          <option value="redking">A red king</option>
+          <option value="heartface">A heart face card</option>
+          <option value="notheart">Not a heart</option>
+          <option value="aceorface">An ace or a face card</option>
+        </select>
+      </div>
+
+      <div id="cardOneExplain" class="card-step"></div>
+    </aside>
+
+    <section class="panel">
+      <div class="section-head">
+        <div><div class="kicker">One-card probability</div><h2>See the favourable cards</h2></div>
+        <span class="small">Highlighted cards are favourable outcomes.</span>
+      </div>
+
+      <div class="card-event-grid" id="cardOneMetrics"></div>
+
+      <div class="visual">
+        <div class="deck-scroll"><div id="deckGrid" class="deck-grid"></div></div>
+        <div class="deck-legend">
+          <span>♥ Hearts</span><span>♦ Diamonds</span><span>♣ Clubs</span><span>♠ Spades</span>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:14px">
+        <div><div class="kicker">Two-card problems</div><h2>With or without replacement</h2></div>
+      </div>
+
+      <div class="grid2" style="margin-top:10px">
+        <div>
+          <div class="control">
+            <label>Event</label>
+            <select id="cardTwoEvent" style="margin-top:8px">
+              <option value="bothaces">Both cards are aces</option>
+              <option value="aceking">First an ace, then a king</option>
+              <option value="bothred">Both cards are red</option>
+              <option value="redblack">First red, then black</option>
+              <option value="atleastace">At least one ace</option>
+              <option value="samecolor">Both cards are the same colour</option>
+            </select>
+          </div>
+          <div class="control">
+            <label>After the first draw</label>
+            <div class="card-two-mode">
+              <button id="cardWithBtn" class="active" type="button">With replacement</button>
+              <button id="cardWithoutBtn" type="button">Without replacement</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div id="cardTwoMetrics" class="metrics"></div>
+          <div id="cardTwoWorking" class="card-step"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section id="page-practice" class="panel page hidden">
+<div class="section-head"><div><div class="kicker">Practice</div><h2>Try both kinds of probability</h2></div></div>
+<div class="grid2" style="margin-top:12px">
+<div class="challenge"><div class="problem">For a fair die, what is the probability of getting an even number?</div><input id="prAns" type="text" placeholder="Example: 1/2" style="margin-top:10px"><div class="btnrow"><button id="prCheck" class="green">Check</button></div><div id="prFb" class="feedback"></div></div>
+<div class="challenge"><div class="problem">A bag contains 3 red and 2 blue balls. Two balls are drawn <strong>without replacement</strong>. Find P(R then B).</div><input id="treePracticeAns" type="text" placeholder="Example: 3/10" style="margin-top:10px"><div class="btnrow"><button id="treePracticeCheck" class="green">Check</button></div><div id="treePracticeFb" class="feedback"></div>
+<div class="challenge">
+  <div class="problem">One card is drawn from a standard deck. Find the probability of drawing a face card.</div>
+  <input id="cardPracticeAns" type="text" placeholder="Example: 3/13" style="margin-top:10px">
+  <div class="btnrow"><button id="cardPracticeCheck" class="green">Check</button></div>
+  <div id="cardPracticeFb" class="feedback"></div>
+</div>
+</div>
+</div></section>
+<section id="page-challenge" class="panel page hidden">
+<div class="grid2">
+<div class="challenge"><div class="problem">Why does experimental probability usually get closer to theoretical probability when the number of trials becomes large?</div><button id="prExplain" class="primary" style="margin-top:10px">Explain</button><div id="prExp" class="feedback"></div></div>
+<div class="challenge"><div class="problem" id="treeChallengePrompt"></div><input id="treeChallengeAns" type="text" placeholder="Fraction or decimal" style="margin-top:10px"><div class="btnrow"><button id="treeChallengeCheck" class="green">Check</button><button id="treeChallengeNew" class="ghost">New tree question</button></div><div id="treeChallengeFb" class="feedback"></div>
+<div class="challenge">
+  <div class="problem" id="cardChallengePrompt"></div>
+  <input id="cardChallengeAns" type="text" placeholder="Fraction or decimal" style="margin-top:10px">
+  <div class="btnrow"><button id="cardChallengeCheck" class="green">Check</button><button id="cardChallengeNew" class="ghost">New card question</button></div>
+  <div id="cardChallengeFb" class="feedback"></div>
+</div>
+</div>
+</div></section>
 <footer>MathLab 10 • Probability</footer></main>
 <script>
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById("page-"+b.dataset.page).classList.remove("hidden")}));
 
-const p$=s=>document.querySelector(s);let counts={H:0,T:0,1:0,2:0,3:0,4:0,5:0,6:0},trials=0;function prRun(n){let type=p$("#prType").value;for(let i=0;i<n;i++){if(type==="coin"){counts[Math.random()<.5?"H":"T"]++}else{counts[1+Math.floor(Math.random()*6)]++}trials++}prRender()}function prRender(){let type=p$("#prType").value,keys=type==="coin"?["H","T"]:[1,2,3,4,5,6],max=Math.max(...keys.map(k=>counts[k]),1),fav=type==="coin"?counts.H:(counts[2]+counts[4]+counts[6]),theory=type==="coin"?.5:.5,exp=trials?fav/trials:0;p$("#prMetrics").innerHTML=[["Trials",trials],["Favourable",fav],["Experimental",exp.toFixed(3)],["Theoretical",theory.toFixed(3)]].map((x,i)=>`<div class="metric ${i===2?"primary":""}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");p$("#prSvg").innerHTML=`<line x1="45" y1="285" x2="660" y2="285" stroke="#b7bdcc"/>`+keys.map((k,i)=>{let x=100+i*(500/Math.max(keys.length-1,1)),h=counts[k]/max*210;return `<rect x="${x-28}" y="${285-h}" width="56" height="${h}" rx="6" fill="#5b5bd6"/><text x="${x}" y="310" text-anchor="middle">${k}</text><text x="${x}" y="${273-h}" text-anchor="middle">${counts[k]}</text>`}).join("")}document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>prRun(+b.dataset.run));p$("#prReset").onclick=()=>{counts={H:0,T:0,1:0,2:0,3:0,4:0,5:0,6:0};trials=0;prRender()};p$("#prType").onchange=()=>{counts={H:0,T:0,1:0,2:0,3:0,4:0,5:0,6:0};trials=0;prRender()};p$("#prCheck").onclick=()=>{let v=p$("#prAns").value.replace(/\s/g,"");p$("#prFb").textContent=(v==="1/2"||v==="0.5"||v==="3/6")?"✅ Correct.":"Even outcomes are 2, 4, 6 out of six outcomes.";};p$("#prExplain").onclick=()=>p$("#prExp").textContent="With many independent trials, short-run random fluctuations tend to average out, so relative frequencies usually settle closer to the theoretical probability.";prRender();
+const p$=s=>document.querySelector(s);let counts={H:0,T:0,1:0,2:0,3:0,4:0,5:0,6:0},trials=0;function prRun(n){let type=p$("#prType").value;for(let i=0;i<n;i++){if(type==="coin"){counts[Math.random()<.5?"H":"T"]++}else{counts[1+Math.floor(Math.random()*6)]++}trials++}prRender()}function prRender(){let type=p$("#prType").value,keys=type==="coin"?["H","T"]:[1,2,3,4,5,6],max=Math.max(...keys.map(k=>counts[k]),1),fav=type==="coin"?counts.H:(counts[2]+counts[4]+counts[6]),theory=type==="coin"?.5:.5,exp=trials?fav/trials:0;p$("#prMetrics").innerHTML=[["Trials",trials],["Favourable",fav],["Experimental",exp.toFixed(3)],["Theoretical",theory.toFixed(3)]].map((x,i)=>`<div class="metric ${i===2?"primary":""}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");p$("#prSvg").innerHTML=`<line x1="45" y1="285" x2="660" y2="285" stroke="#b7bdcc"/>`+keys.map((k,i)=>{let x=100+i*(500/Math.max(keys.length-1,1)),h=counts[k]/max*210;return `<rect x="${x-28}" y="${285-h}" width="56" height="${h}" rx="6" fill="#5b5bd6"/><text x="${x}" y="310" text-anchor="middle">${k}</text><text x="${x}" y="${273-h}" text-anchor="middle">${counts[k]}</text>`}).join("")}document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>prRun(+b.dataset.run));p$("#prReset").onclick=()=>{counts={H:0,T:0,1:0,2:0,3:0,4:0,5:0,6:0};trials=0;prRender()};p$("#prType").onchange=()=>{counts={H:0,T:0,1:0,2:0,3:0,4:0,5:0,6:0};trials=0;prRender()};p$("#prCheck").onclick=()=>{let v=p$("#prAns").value.replace(/\s/g,"");p$("#prFb").textContent=(v==="1/2"||v==="0.5"||v==="3/6")?"✅ Correct.":"Even outcomes are 2, 4, 6 out of six outcomes.";};p$("#prExplain").onclick=()=>p$("#prExp").textContent="With many independent trials, short-run random fluctuations tend to average out, so relative frequencies usually settle closer to the theoretical probability.";
+
+let treeReplacement=true;
+
+function gcd(a,b){a=Math.abs(Math.round(a));b=Math.abs(Math.round(b));while(b){let t=b;b=a%b;a=t}return a||1}
+function frac(n,d){if(d===0)return "—";if(n===0)return "0";let g=gcd(n,d);n/=g;d/=g;return d===1?String(n):`${n}/${d}`}
+function decimal(n,d){return d?n/d:0}
+
+function syncTreeInput(num,range){
+  p$(num).addEventListener("input",()=>{
+    let v=Math.max(1,Math.min(10,Math.round(+p$(num).value||1)));
+    p$(num).value=v;p$(range).value=v;renderTree();
+  });
+  p$(range).addEventListener("input",()=>{p$(num).value=p$(range).value;renderTree()});
+}
+syncTreeInput("#treeRed","#treeRedRange");
+syncTreeInput("#treeBlue","#treeBlueRange");
+
+p$("#withBtn").onclick=()=>{treeReplacement=true;p$("#withBtn").classList.add("active");p$("#withoutBtn").classList.remove("active");renderTree()};
+p$("#withoutBtn").onclick=()=>{treeReplacement=false;p$("#withoutBtn").classList.add("active");p$("#withBtn").classList.remove("active");renderTree()};
+
+function outcomeData(r,b,replace){
+  const N=r+b;
+  if(replace){
+    const D=N*N;
+    return {firstR:[r,N],firstB:[b,N],rr2:[r,N],rb2:[b,N],br2:[r,N],bb2:[b,N],RR:[r*r,D],RB:[r*b,D],BR:[b*r,D],BB:[b*b,D]};
+  }
+  const D=N*(N-1);
+  return {firstR:[r,N],firstB:[b,N],rr2:[Math.max(0,r-1),N-1],rb2:[b,N-1],br2:[r,N-1],bb2:[Math.max(0,b-1),N-1],
+          RR:[r*Math.max(0,r-1),D],RB:[r*b,D],BR:[b*r,D],BB:[b*Math.max(0,b-1),D]};
+}
+function line(x1,y1,x2,y2,cls){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="tree-line ${cls}"/>`}
+function node(x,y,cls,label){return `<circle cx="${x}" cy="${y}" r="25" class="tree-node ${cls}"/><text x="${x}" y="${y+5}" text-anchor="middle" class="tree-label">${label}</text>`}
+function txt(x,y,s,cls="tree-prob",anchor="middle"){return `<text x="${x}" y="${y}" text-anchor="${anchor}" class="${cls}">${s}</text>`}
+
+function renderTree(){
+  const r=Math.max(1,Math.min(10,+p$("#treeRed").value||1)),b=Math.max(1,Math.min(10,+p$("#treeBlue").value||1)),N=r+b,o=outcomeData(r,b,treeReplacement);
+  p$("#ballBank").innerHTML=Array.from({length:r},()=>`<span class="ball red">R</span>`).join("")+Array.from({length:b},()=>`<span class="ball blue">B</span>`).join("");
+  p$("#treeModeExplain").textContent=treeReplacement?`The first ball is returned. The bag again contains ${r} red and ${b} blue balls before draw 2.`:`The first ball is kept out. Only ${N-1} balls remain before draw 2.`;
+  p$("#treeRule").innerHTML=treeReplacement?`<strong>With replacement:</strong> the second-stage probabilities are the same as the first stage because the bag returns to its original composition.`:`<strong>Without replacement:</strong> the second-stage denominator changes from ${N} to ${N-1}. The colour drawn first also loses one ball on that branch.`;
+
+  p$("#treeSvg").innerHTML=
+    line(90,215,275,115,"red")+line(90,215,275,315,"blue")+line(300,105,555,55,"red")+line(300,125,555,155,"blue")+line(300,305,555,255,"red")+line(300,325,555,355,"blue")+
+    node(70,215,"start","Start")+node(285,115,"red","R")+node(285,315,"blue","B")+node(575,55,"red","RR")+node(575,155,"blue","RB")+node(575,255,"red","BR")+node(575,355,"blue","BB")+
+    txt(172,145,`P(R) = ${frac(...o.firstR)}`)+txt(172,292,`P(B) = ${frac(...o.firstB)}`)+txt(423,72,`R: ${frac(...o.rr2)}`)+txt(423,148,`B: ${frac(...o.rb2)}`)+txt(423,270,`R: ${frac(...o.br2)}`)+txt(423,345,`B: ${frac(...o.bb2)}`)+
+    txt(665,58,frac(...o.RR),"tree-label","start")+txt(665,158,frac(...o.RB),"tree-label","start")+txt(665,258,frac(...o.BR),"tree-label","start")+txt(665,358,frac(...o.BB),"tree-label","start");
+
+  const outs=[["RR",o.RR,"Red then red"],["RB",o.RB,"Red then blue"],["BR",o.BR,"Blue then red"],["BB",o.BB,"Blue then blue"]];
+  p$("#treeOutcomes").innerHTML=outs.map(([name,val,desc])=>`<div class="outcome-card"><div class="small">${desc}</div><strong>${name}: ${frac(...val)}</strong><div class="small">${decimal(...val).toFixed(3)}</div></div>`).join("");
+
+  const D=o.RR[1],same=o.RR[0]+o.BB[0],diff=o.RB[0]+o.BR[0],atLeastRed=D-o.BB[0];
+  p$("#treeEvents").innerHTML=[["Same colour",same,D],["Different colours",diff,D],["At least one red",atLeastRed,D]].map(([name,n,d])=>`<div class="metric"><div class="k">${name}</div><div class="v">${frac(n,d)}</div><div class="small">${(n/d).toFixed(3)}</div></div>`).join("");
+
+  p$("#treeRows").innerHTML=[["RR",o.firstR,o.rr2,o.RR],["RB",o.firstR,o.rb2,o.RB],["BR",o.firstB,o.br2,o.BR],["BB",o.firstB,o.bb2,o.BB]]
+    .map(([name,a,c,path])=>`<tr><td>${name}</td><td>${frac(...a)}</td><td>${frac(...c)}</td><td>${frac(...a)} × ${frac(...c)} = <strong>${frac(...path)}</strong></td></tr>`).join("");
+
+  const sum=decimal(...o.RR)+decimal(...o.RB)+decimal(...o.BR)+decimal(...o.BB);
+  p$("#treeTotalCheck").textContent=`All final probabilities add to ${sum.toFixed(2)}`;
+}
+
+function parseProbability(v){
+  v=String(v).trim().replace(/\s/g,"");if(!v)return NaN;
+  if(v.includes("/")){const x=v.split("/");if(x.length!==2)return NaN;const a=Number(x[0]),b=Number(x[1]);return Number.isFinite(a)&&Number.isFinite(b)&&b!==0?a/b:NaN}
+  return Number(v);
+}
+
+p$("#treePracticeCheck").onclick=()=>{
+  const x=parseProbability(p$("#treePracticeAns").value),ans=(3/5)*(2/4);
+  p$("#treePracticeFb").textContent=Number.isFinite(x)&&Math.abs(x-ans)<.0001?"✅ Correct. P(R then B) = 3/5 × 2/4 = 3/10.":"First branch is 3/5. After drawing a red without replacement, 2 blue remain out of 4 total.";
+};
+
+let treeChallenge={};
+function newTreeChallenge(){
+  const r=2+Math.floor(Math.random()*4),b=2+Math.floor(Math.random()*4),replace=Math.random()<.5,events=["RR","RB","same","different"],event=events[Math.floor(Math.random()*events.length)],o=outcomeData(r,b,replace),D=o.RR[1];
+  let n,label;
+  if(event==="RR"){n=o.RR[0];label="red then red"}
+  if(event==="RB"){n=o.RB[0];label="red then blue"}
+  if(event==="same"){n=o.RR[0]+o.BB[0];label="the same colour twice"}
+  if(event==="different"){n=o.RB[0]+o.BR[0];label="different colours"}
+  treeChallenge={answer:n/D,n,d:D};
+  p$("#treeChallengePrompt").innerHTML=`A bag has <strong>${r} red</strong> and <strong>${b} blue</strong> balls. Two draws are made <strong>${replace?"with":"without"} replacement</strong>. Find the probability of <strong>${label}</strong>.`;
+  p$("#treeChallengeAns").value="";p$("#treeChallengeFb").textContent="";
+}
+p$("#treeChallengeCheck").onclick=()=>{
+  const x=parseProbability(p$("#treeChallengeAns").value),ok=Number.isFinite(x)&&Math.abs(x-treeChallenge.answer)<.0001;
+  p$("#treeChallengeFb").textContent=ok?`✅ Correct — ${frac(treeChallenge.n,treeChallenge.d)}.`:"Check whether the second branch keeps the same denominator or decreases by one.";
+};
+p$("#treeChallengeNew").onclick=newTreeChallenge;
+
+
+
+// ---------------------------------------------------------------------
+// Deck of Cards Lab
+// ---------------------------------------------------------------------
+const cardSuits=[
+  {key:"H",name:"Hearts",symbol:"♥",red:true},
+  {key:"D",name:"Diamonds",symbol:"♦",red:true},
+  {key:"C",name:"Clubs",symbol:"♣",red:false},
+  {key:"S",name:"Spades",symbol:"♠",red:false}
+];
+const cardRanks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+const deck=[];
+cardSuits.forEach(suit=>cardRanks.forEach(rank=>{
+  deck.push({
+    suit:suit.key,
+    suitName:suit.name,
+    symbol:suit.symbol,
+    red:suit.red,
+    rank,
+    face:["J","Q","K"].includes(rank),
+    ace:rank==="A"
+  });
+}));
+
+let cardReplacement=true;
+
+function cardMatch(card,event){
+  if(event==="red") return card.red;
+  if(event==="black") return !card.red;
+  if(event==="heart") return card.suit==="H";
+  if(event==="spade") return card.suit==="S";
+  if(event==="ace") return card.ace;
+  if(event==="king") return card.rank==="K";
+  if(event==="face") return card.face;
+  if(event==="redking") return card.red && card.rank==="K";
+  if(event==="heartface") return card.suit==="H" && card.face;
+  if(event==="notheart") return card.suit!=="H";
+  if(event==="aceorface") return card.ace || card.face;
+  return false;
+}
+
+function renderCardOne(){
+  const event=p$("#cardEvent").value;
+  const fav=deck.filter(c=>cardMatch(c,event));
+  const n=fav.length;
+  const descriptions={
+    red:"Red cards are all hearts and diamonds: 13 + 13 = 26.",
+    black:"Black cards are all clubs and spades: 13 + 13 = 26.",
+    heart:"There are 13 hearts in a standard 52-card deck.",
+    spade:"There are 13 spades in a standard 52-card deck.",
+    ace:"There is one ace in each suit, so there are 4 aces.",
+    king:"There is one king in each suit, so there are 4 kings.",
+    face:"J, Q and K are face cards: 3 per suit × 4 suits = 12.",
+    redking:"The red suits are hearts and diamonds, so the red kings are K♥ and K♦: 2 cards.",
+    heartface:"The heart face cards are J♥, Q♥ and K♥: 3 cards.",
+    notheart:"Not a heart means any diamond, club or spade: 52 − 13 = 39.",
+    aceorface:"Aces are not face cards here, so favourable cards = 4 aces + 12 face cards = 16."
+  };
+
+  p$("#cardOneMetrics").innerHTML=[
+    ["Favourable",n],
+    ["Total",52],
+    ["P(E)",frac(n,52)],
+    ["P(not E)",frac(52-n,52)]
+  ].map((x,i)=>`<div class="metric ${i===2?"primary":""}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+
+  p$("#cardOneExplain").innerHTML=`<strong>Why?</strong> ${descriptions[event]}<br><span class="formula">P(E) = ${n}/52 = ${frac(n,52)}</span>`;
+
+  p$("#deckGrid").innerHTML=deck.map(c=>{
+    const hit=cardMatch(c,event);
+    const cls=c.red?"red":"black";
+    return `<div class="play-card ${cls} ${hit?"hit":""}">
+      <span class="rank">${c.rank}</span>
+      <span class="suit">${c.symbol}</span>
+      <span class="rank">${c.rank}</span>
+    </div>`;
+  }).join("");
+}
+
+function twoCardProbability(event,replace){
+  let num=0,den=1,working="",label="";
+
+  if(event==="bothaces"){
+    if(replace){num=4*4;den=52*52;working=`4/52 × 4/52 = ${frac(num,den)}`;}
+    else{num=4*3;den=52*51;working=`4/52 × 3/51 = ${frac(num,den)}`;}
+    label="P(both aces)";
+  }
+
+  if(event==="aceking"){
+    if(replace){num=4*4;den=52*52;working=`4/52 × 4/52 = ${frac(num,den)}`;}
+    else{num=4*4;den=52*51;working=`4/52 × 4/51 = ${frac(num,den)}`;}
+    label="P(ace then king)";
+  }
+
+  if(event==="bothred"){
+    if(replace){num=26*26;den=52*52;working=`26/52 × 26/52 = ${frac(num,den)}`;}
+    else{num=26*25;den=52*51;working=`26/52 × 25/51 = ${frac(num,den)}`;}
+    label="P(both red)";
+  }
+
+  if(event==="redblack"){
+    if(replace){num=26*26;den=52*52;working=`26/52 × 26/52 = ${frac(num,den)}`;}
+    else{num=26*26;den=52*51;working=`26/52 × 26/51 = ${frac(num,den)}`;}
+    label="P(red then black)";
+  }
+
+  if(event==="atleastace"){
+    if(replace){
+      num=52*52-48*48;den=52*52;
+      working=`1 − P(no ace twice) = 1 − (48/52 × 48/52) = ${frac(num,den)}`;
+    } else {
+      num=52*51-48*47;den=52*51;
+      working=`1 − P(no ace twice) = 1 − (48/52 × 47/51) = ${frac(num,den)}`;
+    }
+    label="P(at least one ace)";
+  }
+
+  if(event==="samecolor"){
+    if(replace){
+      num=26*26+26*26;den=52*52;
+      working=`P(RR)+P(BB) = 26/52×26/52 + 26/52×26/52 = ${frac(num,den)}`;
+    } else {
+      num=26*25+26*25;den=52*51;
+      working=`P(RR)+P(BB) = 26/52×25/51 + 26/52×25/51 = ${frac(num,den)}`;
+    }
+    label="P(same colour)";
+  }
+
+  return {num,den,working,label,value:num/den};
+}
+
+function renderCardTwo(){
+  const event=p$("#cardTwoEvent").value;
+  const out=twoCardProbability(event,cardReplacement);
+
+  p$("#cardTwoMetrics").innerHTML=[
+    ["Event",out.label],
+    ["Exact",frac(out.num,out.den)],
+    ["Decimal",out.value.toFixed(4)],
+    ["Mode",cardReplacement?"With replacement":"Without replacement"]
+  ].map((x,i)=>`<div class="metric ${i===1?"primary":""}"><div class="k">${x[0]}</div><div class="v" style="${i===0||i===3?'font-size:14px':''}">${x[1]}</div></div>`).join("");
+
+  p$("#cardTwoWorking").innerHTML=
+    `<strong>${cardReplacement?"With replacement":"Without replacement"}</strong><br>${out.working}<br><span class="small">${
+      cardReplacement
+      ?"The first card is returned, so the second draw again has 52 cards."
+      :"The first card is not returned, so the second draw has only 51 cards."
+    }</span>`;
+}
+
+p$("#cardEvent").addEventListener("change",renderCardOne);
+p$("#cardTwoEvent").addEventListener("change",renderCardTwo);
+
+p$("#cardWithBtn").onclick=()=>{
+  cardReplacement=true;
+  p$("#cardWithBtn").classList.add("active");
+  p$("#cardWithoutBtn").classList.remove("active");
+  renderCardTwo();
+};
+p$("#cardWithoutBtn").onclick=()=>{
+  cardReplacement=false;
+  p$("#cardWithoutBtn").classList.add("active");
+  p$("#cardWithBtn").classList.remove("active");
+  renderCardTwo();
+};
+
+p$("#cardPracticeCheck").onclick=()=>{
+  const x=parseProbability(p$("#cardPracticeAns").value);
+  const ans=12/52;
+  p$("#cardPracticeFb").textContent=
+    Number.isFinite(x)&&Math.abs(x-ans)<0.0001
+      ?"✅ Correct. There are 12 face cards, so P(face card) = 12/52 = 3/13."
+      :"Count J, Q and K in all four suits: 3 × 4 = 12 face cards.";
+};
+
+let cardChallenge={};
+
+function newCardChallenge(){
+  const qs=[
+    {prompt:"One card is drawn. Find P(ace).",num:4,den:52,hint:"There are 4 aces."},
+    {prompt:"One card is drawn. Find P(red king).",num:2,den:52,hint:"There are two red suits, each with one king."},
+    {prompt:"One card is drawn. Find P(not a heart).",num:39,den:52,hint:"Subtract the 13 hearts from 52."},
+    {prompt:"Two cards are drawn without replacement. Find P(both aces).",num:4*3,den:52*51,hint:"Use 4/52, then 3/51."},
+    {prompt:"Two cards are drawn with replacement. Find P(both red).",num:26*26,den:52*52,hint:"With replacement, use 26/52 on both draws."},
+    {prompt:"Two cards are drawn without replacement. Find P(first red, then black).",num:26*26,den:52*51,hint:"After a red card is removed, 26 black cards remain among 51 cards."}
+  ];
+  const q=qs[Math.floor(Math.random()*qs.length)];
+  cardChallenge={...q,value:q.num/q.den};
+  p$("#cardChallengePrompt").textContent=q.prompt;
+  p$("#cardChallengeAns").value="";
+  p$("#cardChallengeFb").textContent="";
+}
+
+p$("#cardChallengeCheck").onclick=()=>{
+  const x=parseProbability(p$("#cardChallengeAns").value);
+  const ok=Number.isFinite(x)&&Math.abs(x-cardChallenge.value)<0.0001;
+  p$("#cardChallengeFb").textContent=ok
+    ?`✅ Correct — ${frac(cardChallenge.num,cardChallenge.den)}.`
+    :`Hint: ${cardChallenge.hint}`;
+};
+p$("#cardChallengeNew").onclick=newCardChallenge;
+
+renderCardOne();
+renderCardTwo();
+newCardChallenge();
+
+prRender();renderTree();newTreeChallenge();renderCardOne();renderCardTwo();newCardChallenge();
 
 </script></body></html>
