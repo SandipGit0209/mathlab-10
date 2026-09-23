@@ -1,10 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#5b5bd6">
-<title>Currency & Exchange Rate — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css"></head>
+<title>Currency & Exchange Rate — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css">
+<style>
+.fx-change-layout{display:grid;grid-template-columns:minmax(270px,.72fr) minmax(0,1.28fr);gap:14px}
+.fx-change-mode{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:var(--panel);padding:5px;border-radius:12px;margin-top:8px}
+.fx-change-mode button{border:0;background:transparent;border-radius:9px;min-height:42px;font-weight:850;color:var(--muted)}
+.fx-change-mode button.active{background:var(--accent);color:#fff}
+.fx-rate-visual{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:12px}
+.fx-rate-card{border:1px solid var(--border);background:#fff;border-radius:15px;padding:14px;text-align:center}
+.fx-rate-card .big{font-size:28px;font-weight:950;letter-spacing:-.04em;margin-top:5px}
+.fx-arrow{font-size:28px;font-weight:950;color:var(--accent)}
+.fx-direction{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.fx-direction .mini{text-align:center}
+.fx-scale{height:12px;border-radius:999px;background:#e6e8ef;overflow:hidden;margin-top:8px}
+.fx-scale span{display:block;height:100%;background:var(--accent);border-radius:inherit}
+.fx-compare{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.fx-step{border-left:4px solid var(--accent);background:var(--panel);border-radius:0 12px 12px 0;padding:11px 12px;margin-top:10px;font-size:12px;line-height:1.6}
+.fx-example-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media(max-width:900px){.fx-change-layout{grid-template-columns:1fr}.fx-direction,.fx-compare{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.fx-rate-visual,.fx-example-grid,.fx-direction,.fx-compare,.fx-change-mode{grid-template-columns:1fr}.fx-arrow{transform:rotate(90deg);text-align:center}}
+</style>
+</head>
 <body><main class="app">
-<section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Lesson 4 • Currency and Exchange Rate</div><h1>Currency <span>& Exchange Rate</span></h1><p>Understand buying rate, selling rate and chain conversion through a virtual exchange counter.</p></div><div class="hero-art"><div class="hero-symbol">⇄</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
-<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
+<section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Lesson 4 • Currency and Exchange Rate</div><h1>Currency <span>& Exchange Rate</span></h1><p>Understand buying rate, selling rate, chain conversion, devaluation and revaluation through interactive exchange-rate labs.</p></div><div class="hero-art"><div class="hero-symbol">⇄</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
+<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="valuechange">Devaluation & Revaluation</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
 <section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Key language</div><h2>Think like a money changer</h2></div></div><div class="learn-grid">
 <div class="learn-card"><h3>Buying rate</h3><p>The rate used when the bank or money changer buys foreign currency from you.</p></div>
 <div class="learn-card"><h3>Selling rate</h3><p>The rate used when the bank or money changer sells foreign currency to you.</p></div>
@@ -12,14 +32,138 @@
 <div class="learn-card"><h3>Foreign → NPR</h3><p>You are selling foreign currency, so use the buying rate.</p><span class="formula">NPR = foreign × buying rate</span></div>
 <div class="learn-card"><h3>Cross currency</h3><p>Convert through NPR or use a consistent chain rule.</p></div>
 <div class="learn-card"><h3>Spread</h3><p>Selling rate is normally greater than buying rate. The difference is the spread.</p></div>
+<div class="learn-card"><h3>Devaluation of NPR</h3><p>Nepali currency becomes weaker relative to foreign currency. In SEE-style problems, the NPR-per-foreign-currency exchange rate increases by the stated percentage.</p><span class="formula">New rate = Old rate × (1 + r/100)</span></div>
+<div class="learn-card"><h3>Revaluation of NPR</h3><p>Nepali currency becomes stronger relative to foreign currency. The NPR-per-foreign-currency exchange rate decreases by the stated percentage.</p><span class="formula">New rate = Old rate × (1 − r/100)</span></div>
+<div class="learn-card"><h3>Exam shortcut</h3><p>If $1 = Rs. 120 and NPR is devalued by 5%, $1 becomes Rs. 126. If NPR is revalued by 5%, $1 becomes Rs. 114.</p></div>
 </div></section>
 <section id="page-explore" class="panel page hidden"><div class="grid2"><aside class="panel"><div class="section-head"><div><div class="kicker">Exchange desk</div><h2>Convert currency</h2></div></div><div class="controls" style="margin-top:12px">
 <div class="control"><label>Currency</label><select id="fxCur"><option value="USD">US Dollar</option><option value="GBP">Pound Sterling</option><option value="EUR">Euro</option><option value="JPY">Japanese Yen (10 units)</option><option value="AUD">Australian Dollar</option></select></div>
 <div class="control"><label>Direction</label><select id="fxDir"><option value="toNPR">Foreign → NPR</option><option value="fromNPR">NPR → Foreign</option></select></div>
 <div class="control"><label>Amount</label><input id="fxAmt" type="number" value="500" min="0" step="1"></div>
 </div></aside><section class="panel"><div class="metrics" id="fxMetrics"></div><div class="visual"><div class="section-head"><div><div class="kicker">Reference table</div><h2>Editable textbook-style rates</h2></div></div><div class="tablewrap"><table class="table"><thead><tr><th>Currency</th><th>Unit</th><th>Buying</th><th>Selling</th></tr></thead><tbody id="fxTable"></tbody></table></div></div></section></div></section>
-<section id="page-practice" class="panel page hidden"><div class="section-head"><div><div class="kicker">Practice</div><h2>Which rate should you use?</h2></div></div><div class="challenge"><div class="problem">You have Nepali rupees and want to buy US dollars from a bank. Which rate applies?</div><div class="btnrow"><button class="ghost fxOpt">Buying rate</button><button class="ghost fxOpt" data-good="1">Selling rate</button></div><div id="fxPracticeFb" class="feedback"></div></div></section>
-<section id="page-challenge" class="panel page hidden"><div class="section-head"><div><div class="kicker">Cross-currency challenge</div><h2>Convert through NPR</h2></div></div><div class="challenge"><div class="problem">Using the reference rates, how many Japanese Yen can be obtained from 1 Canadian Dollar if CAD buying rate is Rs. 98.08 and 10 JPY selling rate is Rs. 9.37?</div><input id="fxAns" type="number" step=".01" style="margin-top:10px"><div class="btnrow"><button class="green" id="fxCheck">Check</button></div><div id="fxFb" class="feedback"></div></div></section>
+
+<section id="page-valuechange" class="page hidden">
+  <div class="fx-change-layout">
+    <aside class="panel">
+      <div class="section-head"><div><div class="kicker">Currency value lab</div><h2>Devaluation vs revaluation</h2></div></div>
+
+      <div class="control" style="margin-top:12px">
+        <label>What happens to Nepali currency?</label>
+        <div class="fx-change-mode">
+          <button id="devalBtn" class="active" type="button">Devaluation</button>
+          <button id="revalBtn" type="button">Revaluation</button>
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="control-top">
+          <label>Old exchange rate</label>
+          <div class="valuebox"><span>Rs.</span><input id="changeOldRate" type="number" min="1" max="500" step=".01" value="120"></div>
+        </div>
+        <div class="small">NPR required for 1 unit of foreign currency</div>
+      </div>
+
+      <div class="control">
+        <div class="control-top">
+          <label>Change percentage</label>
+          <div class="valuebox"><input id="changePercent" type="number" min=".1" max="50" step=".1" value="5"><span>%</span></div>
+        </div>
+        <input id="changePercentRange" type="range" min=".1" max="50" step=".1" value="5">
+      </div>
+
+      <div class="control">
+        <label>Foreign currency amount</label>
+        <input id="changeForeign" type="number" min="1" step="1" value="1000" style="margin-top:8px">
+      </div>
+
+      <div class="control">
+        <label>Round-trip example</label>
+        <div class="small" style="margin-top:6px">Assume you first bought foreign currency at the old rate, then converted the same foreign currency back after the value change.</div>
+      </div>
+
+      <div id="changeConcept" class="fx-step"></div>
+    </aside>
+
+    <section class="panel">
+      <div class="section-head">
+        <div><div class="kicker">See the effect</div><h2>Old rate → new rate</h2></div>
+        <span id="changeBadge" class="small"></span>
+      </div>
+
+      <div class="fx-rate-visual">
+        <div class="fx-rate-card">
+          <div class="small">Old rate</div>
+          <div class="big" id="oldRateDisplay">Rs. 120</div>
+          <div class="small">per 1 foreign unit</div>
+        </div>
+        <div class="fx-arrow">→</div>
+        <div class="fx-rate-card">
+          <div class="small">New rate</div>
+          <div class="big" id="newRateDisplay">Rs. 126</div>
+          <div class="small">per 1 foreign unit</div>
+        </div>
+      </div>
+
+      <div class="fx-compare" id="changeMetrics"></div>
+
+      <div class="visual">
+        <div class="section-head"><div><div class="kicker">What does it mean?</div><h2 id="changeMeaningTitle">NPR becomes weaker</h2></div></div>
+        <div id="changeMeaning" class="small" style="margin-top:7px"></div>
+        <div class="fx-direction">
+          <div class="mini"><h3>Foreign currency</h3><p id="foreignEffect"></p></div>
+          <div class="mini"><h3>NPR needed</h3><p id="nprEffect"></p></div>
+          <div class="mini"><h3>Exchange rate</h3><p id="rateEffect"></p></div>
+        </div>
+      </div>
+
+      <div class="visual">
+        <div class="small">Rate change visual</div>
+        <div class="fx-scale"><span id="oldRateBar" style="width:70%"></span></div>
+        <div class="small" style="margin-top:5px">Old rate</div>
+        <div class="fx-scale"><span id="newRateBar" style="width:75%"></span></div>
+        <div class="small" style="margin-top:5px">New rate</div>
+      </div>
+
+      <div class="visual">
+        <div class="kicker">Round-trip profit / loss</div>
+        <div id="roundTripWorking" class="fx-step"></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:14px">
+    <div class="section-head"><div><div class="kicker">Learn by comparison</div><h2>Same old rate, opposite effects</h2></div></div>
+    <div class="fx-example-grid">
+      <div class="mini">
+        <h3>5% devaluation</h3>
+        <p>If $1 = Rs. 120:</p>
+        <span class="formula">120 × 1.05 = Rs. 126</span>
+        <p style="margin-top:7px">More NPR are required for the same $1.</p>
+      </div>
+      <div class="mini">
+        <h3>5% revaluation</h3>
+        <p>If $1 = Rs. 120:</p>
+        <span class="formula">120 × 0.95 = Rs. 114</span>
+        <p style="margin-top:7px">Fewer NPR are required for the same $1.</p>
+      </div>
+    </div>
+  </section>
+</section>
+<section id="page-practice" class="panel page hidden"><div class="section-head"><div><div class="kicker">Practice</div><h2>Which rate should you use?</h2></div></div><div class="challenge"><div class="problem">You have Nepali rupees and want to buy US dollars from a bank. Which rate applies?</div><div class="btnrow"><button class="ghost fxOpt">Buying rate</button><button class="ghost fxOpt" data-good="1">Selling rate</button></div><div id="fxPracticeFb" class="feedback"></div></div>
+<div class="challenge" style="margin-top:10px">
+  <div class="problem">If $1 = Rs. 133.63 and Nepali currency is devalued by 1.5%, what is the new exchange rate?</div>
+  <input id="changePracticeAns" type="number" step=".01" style="margin-top:10px" placeholder="New NPR per $1">
+  <div class="btnrow"><button id="changePracticeCheck" class="green">Check</button></div>
+  <div id="changePracticeFb" class="feedback"></div>
+</div></section>
+<section id="page-challenge" class="panel page hidden"><div class="section-head"><div><div class="kicker">Cross-currency challenge</div><h2>Convert through NPR</h2></div></div><div class="challenge"><div class="problem">Using the reference rates, how many Japanese Yen can be obtained from 1 Canadian Dollar if CAD buying rate is Rs. 98.08 and 10 JPY selling rate is Rs. 9.37?</div><input id="fxAns" type="number" step=".01" style="margin-top:10px"><div class="btnrow"><button class="green" id="fxCheck">Check</button></div><div id="fxFb" class="feedback"></div></div>
+<div class="challenge" style="margin-top:10px">
+  <div class="kicker">Value-change challenge</div>
+  <div id="changeChallengePrompt" class="problem" style="margin-top:5px"></div>
+  <input id="changeChallengeAns" type="number" step=".01" style="margin-top:10px">
+  <div class="btnrow"><button id="changeChallengeCheck" class="green">Check</button><button id="changeChallengeNew" class="ghost">New</button></div>
+  <div id="changeChallengeFb" class="feedback"></div>
+</div></section>
 <footer>MathLab 10 • Currency & Exchange Rate</footer></main>
 <script>
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById("page-"+b.dataset.page).classList.remove("hidden")}));
@@ -32,5 +176,127 @@ f$("#fxTable").innerHTML=Object.entries(rates).map(([k,r])=>`<tr><td>${k}</td><t
 ["#fxCur","#fxDir","#fxAmt"].forEach(id=>f$(id).oninput=fxRender);
 document.querySelectorAll(".fxOpt").forEach(b=>b.onclick=()=>f$("#fxPracticeFb").textContent=b.dataset.good?"✅ Correct — you are buying foreign currency from the bank.":"Not this one. Think from the bank's point of view.");
 f$("#fxCheck").onclick=()=>{let ans=98.08/9.37*10,ok=Math.abs(+f$("#fxAns").value-ans)<.05;f$("#fxFb").textContent=ok?`✅ Correct — about ${ans.toFixed(2)} JPY.`:"Try: convert CAD to NPR using the CAD buying rate, then NPR to JPY using the JPY selling rate."};fxRender();
+
+
+// ------------------------------------------------------------
+// Devaluation & Revaluation Lab
+// SEE/Class 10 convention used here:
+// devaluation of NPR -> NPR per foreign unit increases
+// revaluation of NPR -> NPR per foreign unit decreases
+// ------------------------------------------------------------
+let changeMode="devaluation";
+
+function money2(n){
+  return Number(n).toLocaleString(undefined,{maximumFractionDigits:2,minimumFractionDigits:2});
+}
+
+function renderValueChange(){
+  const old=Math.max(.01,+f$("#changeOldRate").value||120);
+  const pct=Math.max(.1,Math.min(50,+f$("#changePercent").value||5));
+  const foreign=Math.max(1,+f$("#changeForeign").value||1000);
+  f$("#changePercentRange").value=pct;
+
+  const factor=changeMode==="devaluation" ? 1+pct/100 : 1-pct/100;
+  const newRate=old*factor;
+  const oldNpr=foreign*old;
+  const newNpr=foreign*newRate;
+  const difference=newNpr-oldNpr;
+
+  f$("#oldRateDisplay").textContent=`Rs. ${money2(old)}`;
+  f$("#newRateDisplay").textContent=`Rs. ${money2(newRate)}`;
+  f$("#changeBadge").textContent=changeMode==="devaluation" ? `${pct}% devaluation` : `${pct}% revaluation`;
+
+  f$("#changeMetrics").innerHTML=[
+    ["Old rate",`Rs. ${money2(old)}`],
+    ["Change",`${pct}%`],
+    ["New rate",`Rs. ${money2(newRate)}`],
+    ["Difference",`Rs. ${money2(Math.abs(newRate-old))}`]
+  ].map((x,i)=>`<div class="metric ${i===2?"primary":""}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+
+  if(changeMode==="devaluation"){
+    f$("#changeMeaningTitle").textContent="NPR becomes weaker";
+    f$("#changeMeaning").textContent=`After devaluation, one unit of foreign currency costs more Nepali rupees: the rate rises from Rs. ${money2(old)} to Rs. ${money2(newRate)}.`;
+    f$("#foreignEffect").textContent="The same foreign currency converts into more NPR.";
+    f$("#nprEffect").textContent="More NPR are needed to buy the same foreign currency.";
+    f$("#rateEffect").textContent="NPR-per-foreign-currency rate increases.";
+    f$("#changeConcept").innerHTML=`<strong>Devaluation:</strong> add ${pct}% of the old rate.<br><span class="formula">New rate = ${money2(old)} × (1 + ${pct}/100) = ${money2(newRate)}</span>`;
+  } else {
+    f$("#changeMeaningTitle").textContent="NPR becomes stronger";
+    f$("#changeMeaning").textContent=`After revaluation, one unit of foreign currency costs fewer Nepali rupees: the rate falls from Rs. ${money2(old)} to Rs. ${money2(newRate)}.`;
+    f$("#foreignEffect").textContent="The same foreign currency converts into fewer NPR.";
+    f$("#nprEffect").textContent="Fewer NPR are needed to buy the same foreign currency.";
+    f$("#rateEffect").textContent="NPR-per-foreign-currency rate decreases.";
+    f$("#changeConcept").innerHTML=`<strong>Revaluation:</strong> subtract ${pct}% of the old rate.<br><span class="formula">New rate = ${money2(old)} × (1 − ${pct}/100) = ${money2(newRate)}</span>`;
+  }
+
+  const max=Math.max(old,newRate,1);
+  f$("#oldRateBar").style.width=`${Math.max(8,old/max*92)}%`;
+  f$("#newRateBar").style.width=`${Math.max(8,newRate/max*92)}%`;
+
+  const action=difference>=0 ? "profit" : "loss";
+  f$("#roundTripWorking").innerHTML=
+    `Suppose you originally exchanged <strong>Rs. ${money2(oldNpr)}</strong> at the old rate and received <strong>${money2(foreign)}</strong> foreign units.<br>`+
+    `After ${changeMode}, converting those same ${money2(foreign)} foreign units back gives <strong>Rs. ${money2(newNpr)}</strong>.<br>`+
+    `<span class="formula">${action[0].toUpperCase()+action.slice(1)} = Rs. ${money2(Math.abs(difference))}</span>`;
+}
+
+f$("#devalBtn").onclick=()=>{
+  changeMode="devaluation";
+  f$("#devalBtn").classList.add("active");
+  f$("#revalBtn").classList.remove("active");
+  renderValueChange();
+};
+
+f$("#revalBtn").onclick=()=>{
+  changeMode="revaluation";
+  f$("#revalBtn").classList.add("active");
+  f$("#devalBtn").classList.remove("active");
+  renderValueChange();
+};
+
+f$("#changeOldRate").addEventListener("input",renderValueChange);
+f$("#changePercent").addEventListener("input",renderValueChange);
+f$("#changeForeign").addEventListener("input",renderValueChange);
+f$("#changePercentRange").addEventListener("input",()=>{
+  f$("#changePercent").value=f$("#changePercentRange").value;
+  renderValueChange();
+});
+
+f$("#changePracticeCheck").onclick=()=>{
+  const expected=133.63*1.015;
+  const x=+f$("#changePracticeAns").value;
+  const ok=Number.isFinite(x)&&Math.abs(x-expected)<.02;
+  f$("#changePracticeFb").textContent=ok
+    ?`✅ Correct — Rs. ${expected.toFixed(2)} per $1.`
+    :"Devaluation increases the rate: 133.63 × 1.015.";
+};
+
+let changeChallenge={};
+
+function newChangeChallenge(){
+  const ratesList=[110,120,125,133.63,135,140];
+  const pcts=[1.5,2,5,10,12];
+  const old=ratesList[Math.floor(Math.random()*ratesList.length)];
+  const pct=pcts[Math.floor(Math.random()*pcts.length)];
+  const mode=Math.random()<.5?"devaluation":"revaluation";
+  const ans=old*(mode==="devaluation"?1+pct/100:1-pct/100);
+  changeChallenge={old,pct,mode,ans};
+  f$("#changeChallengePrompt").textContent=
+    `If 1 foreign unit = Rs. ${old} and Nepali currency is ${mode==="devaluation"?"devalued":"revalued"} by ${pct}%, find the new exchange rate.`;
+  f$("#changeChallengeAns").value="";
+  f$("#changeChallengeFb").textContent="";
+}
+
+f$("#changeChallengeCheck").onclick=()=>{
+  const x=+f$("#changeChallengeAns").value;
+  const ok=Number.isFinite(x)&&Math.abs(x-changeChallenge.ans)<.02;
+  f$("#changeChallengeFb").textContent=ok
+    ?`✅ Correct — Rs. ${changeChallenge.ans.toFixed(2)}.`
+    :`${changeChallenge.mode==="devaluation"?"Add":"Subtract"} ${changeChallenge.pct}% of the old rate.`;
+};
+
+f$("#changeChallengeNew").onclick=newChangeChallenge;
+
+renderValueChange();newChangeChallenge();
 
 </script></body></html>
