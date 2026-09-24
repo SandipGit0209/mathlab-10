@@ -1,20 +1,788 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#5b5bd6">
-<title>Statistics — MathLab 10</title><link rel="stylesheet" href="../shared/lab.css"></head>
-<body><main class="app">
-<section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Chapter 13 • Statistics</div><h1>Statistics <span></span></h1><p>Enter real class data and instantly see measures of central tendency and a visual distribution.</p></div><div class="hero-art"><div class="hero-symbol">▥</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
-<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
-<section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Data summary</div><h2>Describe a dataset from several angles</h2></div></div><div class="learn-grid">
-<div class="learn-card"><h3>Mean</h3><span class="formula">Σx / n</span></div><div class="learn-card"><h3>Median</h3><p>Middle value after ordering.</p></div><div class="learn-card"><h3>Mode</h3><p>Most frequently occurring value.</p></div><div class="learn-card"><h3>Range</h3><span class="formula">max − min</span></div>
-</div></section>
-<section id="page-explore" class="panel page hidden"><div class="grid2"><aside class="panel"><div class="control"><label>Enter data separated by commas</label><textarea id="stData">12, 15, 18, 18, 20, 22, 22, 22, 25, 28</textarea></div><button id="stCalc" class="primary">Analyse data</button></aside><section class="panel"><div class="metrics" id="stMetrics"></div><div class="visual"><svg id="stSvg" viewBox="0 0 700 340"></svg></div></section></div></section>
-<section id="page-practice" class="panel page hidden"><div class="challenge"><div class="problem">Find the median of 3, 7, 8, 11, 15.</div><input id="stAns" type="number" style="margin-top:10px"><div class="btnrow"><button id="stCheck" class="green">Check</button></div><div id="stFb" class="feedback"></div></div></section>
-<section id="page-challenge" class="panel page hidden"><div class="challenge"><div class="problem">A dataset has mean 10 and contains 5 values. What is the sum of all values?</div><input id="stAns2" type="number" style="margin-top:10px"><div class="btnrow"><button id="stCheck2" class="green">Check</button></div><div id="stFb2" class="feedback"></div></div></section>
-<footer>MathLab 10 • Statistics</footer></main>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5b5bd6">
+<title>Statistics — MathLab 10</title>
+<link rel="stylesheet" href="../shared/lab.css">
+<style>
+.stats-layout{display:grid;grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr);gap:14px}
+.data-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.edit-table input{min-width:78px}
+.edit-table .remove{width:36px;height:36px;border:1px solid var(--border);border-radius:9px;background:#fff;font-weight:900}
+.calc-table tr.q1-row td{background:rgba(18,158,198,.08)}
+.calc-table tr.med-row td{background:rgba(91,91,214,.08)}
+.calc-table tr.q3-row td{background:rgba(245,158,11,.08)}
+.calc-table tr.mode-row td{box-shadow:inset 3px 0 0 var(--green)}
+.status{padding:9px 11px;border-radius:11px;font-size:12px;font-weight:800;margin-top:9px}
+.status.good{background:#edf9f5;color:#13795b;border:1px solid #bdebdc}
+.status.warn{background:#fff7e8;color:#986711;border:1px solid #f1d69b}
+.status.bad{background:#fff0f3;color:#b21f43;border:1px solid #f2c0cc}
+.formula-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}
+.formula-card{border:1px solid var(--border);background:var(--panel);border-radius:15px;padding:13px}
+.formula-card h3{margin:0 0 7px;font-size:14px}
+.formula-card .result{font-size:24px;font-weight:950;letter-spacing:-.04em;margin-top:8px}
+.step-box{border-left:4px solid var(--accent);background:var(--panel);border-radius:0 13px 13px 0;padding:12px 13px;font-size:12px;line-height:1.65;margin-top:9px}
+.step-box strong{color:var(--text)}
+.stat-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid var(--border);border-radius:999px;background:#fff;font-size:10px;font-weight:900;margin:2px}
+.visual-tabs{display:flex;gap:5px;margin-bottom:9px;flex-wrap:wrap}
+.visual-tabs button{border:1px solid var(--border);background:#fff;border-radius:9px;padding:7px 10px;font-weight:850;color:var(--muted)}
+.visual-tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.quartile-line{position:relative;height:100px;margin:18px 12px 0}
+.quartile-line .axis{position:absolute;left:2%;right:2%;top:49px;height:6px;background:#dfe2eb;border-radius:999px}
+.qmark{position:absolute;top:29px;transform:translateX(-50%);text-align:center;min-width:70px}
+.qmark::after{content:"";display:block;width:4px;height:42px;background:var(--accent);margin:3px auto 0;border-radius:4px}
+.qmark.q1::after{background:var(--blue)}.qmark.q3::after{background:var(--warm)}
+.qmark b{font-size:12px}.qmark span{display:block;font-size:10px;color:var(--muted)}
+.legend-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mean-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.exam-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.answer-chip{font-family:Georgia,serif;color:var(--accent);font-size:18px;font-weight:700}
+#statsSvg{min-height:340px}
+@media(max-width:900px){.stats-layout,.mean-methods{grid-template-columns:1fr}.formula-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.formula-grid,.exam-grid{grid-template-columns:1fr}.edit-table input{min-width:66px}.quartile-line{margin-left:2px;margin-right:2px}.qmark{min-width:54px}}
+</style>
+</head>
+
+<body>
+<main class="app">
+
+<section class="panel hero">
+  <div>
+    <a class="back" href="../../index.html">← MathLab 10</a>
+    <div class="kicker">Chapter 13 • Statistics</div>
+    <h1>Statistics <span>for continuous series.</span></h1>
+    <p>Build a grouped frequency table and learn Class 10 mean, median, mode and quartiles step by step — including midpoint, cumulative frequency, assumed mean and class identification.</p>
+  </div>
+  <div class="hero-art">
+    <div class="hero-symbol">x̄</div>
+    <div class="hero-chip">Table → Formula → Class → Answer</div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="tabs">
+    <button class="tab active" data-page="learn">Learn</button>
+    <button class="tab" data-page="lab">Continuous Series Lab</button>
+    <button class="tab" data-page="mean">Mean</button>
+    <button class="tab" data-page="median">Median & Quartiles</button>
+    <button class="tab" data-page="mode">Mode</button>
+    <button class="tab" data-page="practice">Practice</button>
+  </div>
+</section>
+
+<section id="page-learn" class="panel page">
+  <div class="section-head">
+    <div><div class="kicker">Class 10 foundation</div><h2>Read a continuous frequency table first</h2></div>
+  </div>
+
+  <div class="learn-grid">
+    <div class="learn-card">
+      <h3>Class interval</h3>
+      <p>Examples: 10–20, 20–30, 30–40. In a continuous series, one class ends exactly where the next begins.</p>
+    </div>
+    <div class="learn-card">
+      <h3>Frequency (f)</h3>
+      <p>The number of observations in a class interval.</p>
+      <span class="formula">N = Σf</span>
+    </div>
+    <div class="learn-card">
+      <h3>Mid-value (m)</h3>
+      <p>Used to find the mean of a grouped series.</p>
+      <span class="formula">m = (lower + upper) / 2</span>
+    </div>
+    <div class="learn-card">
+      <h3>Cumulative frequency (cf)</h3>
+      <p>Running total of frequencies. It helps locate Q₁, median and Q₃ classes.</p>
+    </div>
+    <div class="learn-card">
+      <h3>Mean</h3>
+      <span class="formula">x̄ = Σfm / N</span>
+      <p>Alternative method: choose assumed mean A, then d = m − A.</p>
+      <span class="formula">x̄ = A + Σfd / N</span>
+    </div>
+    <div class="learn-card">
+      <h3>Median</h3>
+      <span class="formula">Md = L + [(N/2 − cf) / f] × h</span>
+    </div>
+    <div class="learn-card">
+      <h3>Mode</h3>
+      <span class="formula">Mo = L + [(f₁−f₀)/(2f₁−f₀−f₂)] × h</span>
+    </div>
+    <div class="learn-card">
+      <h3>First quartile</h3>
+      <span class="formula">Q₁ = L + [(N/4 − cf) / f] × h</span>
+    </div>
+    <div class="learn-card">
+      <h3>Third quartile</h3>
+      <span class="formula">Q₃ = L + [(3N/4 − cf) / f] × h</span>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <strong>Most important exam habit:</strong> before using median, Q₁ or Q₃ formula, first make the <strong>less-than cumulative frequency</strong> column and identify the class containing the required position.
+  </div>
+</section>
+
+<section id="page-lab" class="page hidden">
+  <div class="stats-layout">
+    <aside class="panel">
+      <div class="section-head">
+        <div><div class="kicker">Editable frequency table</div><h2>Enter a continuous series</h2></div>
+      </div>
+
+      <div class="control" style="margin-top:12px">
+        <label>Example dataset</label>
+        <select id="presetSelect" style="margin-top:7px">
+          <option value="quartile">Quartile example — 10–80</option>
+          <option value="median">Median example — 0–56</option>
+          <option value="mean">Mean example — 10–50</option>
+          <option value="mode">Mode practice — 0–60</option>
+          <option value="inclusive">Inclusive classes — practise making continuous</option>
+        </select>
+      </div>
+
+      <div class="tablewrap" style="margin-top:10px">
+        <table class="table edit-table">
+          <thead><tr><th>Lower</th><th>Upper</th><th>f</th><th></th></tr></thead>
+          <tbody id="editRows"></tbody>
+        </table>
+      </div>
+
+      <div class="data-actions">
+        <button id="addClass" class="ghost" type="button">+ Add class</button>
+        <button id="makeContinuous" class="ghost" type="button">Make continuous</button>
+        <button id="resetData" class="primary" type="button">Load example</button>
+      </div>
+
+      <div id="seriesStatus" class="status good"></div>
+
+      <div class="step-box">
+        <strong>Continuous series check:</strong> if classes are written like 10–19, 20–29, use the correction factor:
+        <span class="formula">correction = gap / 2</span>
+        Then subtract it from lower limits and add it to upper limits.
+      </div>
+    </aside>
+
+    <section class="panel">
+      <div class="section-head">
+        <div><div class="kicker">Automatic working table</div><h2>m, fm and cumulative frequency</h2></div>
+        <div class="legend-row">
+          <span class="stat-badge">Q₁ class</span>
+          <span class="stat-badge">Median class</span>
+          <span class="stat-badge">Q₃ class</span>
+          <span class="stat-badge">Modal class</span>
+        </div>
+      </div>
+
+      <div class="metrics" id="mainMetrics" style="margin-top:10px"></div>
+
+      <div class="tablewrap" style="margin-top:10px">
+        <table class="table calc-table">
+          <thead>
+            <tr><th>Class</th><th>f</th><th>m</th><th>fm</th><th>cf</th></tr>
+          </thead>
+          <tbody id="calcRows"></tbody>
+          <tfoot id="calcFoot"></tfoot>
+        </table>
+      </div>
+
+      <div class="visual">
+        <div class="visual-tabs">
+          <button id="histBtn" class="active" type="button">Frequency graph</button>
+          <button id="ogiveBtn" type="button">Cumulative frequency</button>
+        </div>
+        <svg id="statsSvg" viewBox="0 0 760 360" aria-label="Statistics graph"></svg>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section id="page-mean" class="panel page hidden">
+  <div class="section-head">
+    <div><div class="kicker">Mean of continuous series</div><h2>Two methods, same answer</h2></div>
+  </div>
+
+  <div class="mean-methods" style="margin-top:12px">
+    <div class="panel">
+      <div class="kicker">Method 1 • Direct method</div>
+      <h2 style="margin:4px 0 0">x̄ = Σfm / N</h2>
+      <div id="directMeanWorking" class="step-box"></div>
+    </div>
+    <div class="panel">
+      <div class="kicker">Method 2 • Assumed mean</div>
+      <h2 style="margin:4px 0 0">x̄ = A + Σfd / N</h2>
+      <div id="assumedMeanWorking" class="step-box"></div>
+    </div>
+  </div>
+
+  <div class="visual" style="margin-top:12px">
+    <div class="small">Assumed-mean table</div>
+    <div class="tablewrap">
+      <table class="table">
+        <thead><tr><th>Class</th><th>f</th><th>m</th><th>d = m − A</th><th>fd</th></tr></thead>
+        <tbody id="assumedRows"></tbody>
+        <tfoot id="assumedFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="page-median" class="panel page hidden">
+  <div class="section-head">
+    <div><div class="kicker">Positional measures</div><h2>Q₁, Median and Q₃</h2></div>
+  </div>
+
+  <div class="formula-grid" id="quartileCards"></div>
+
+  <div class="visual">
+    <div class="small">Quartiles divide the distribution into four parts</div>
+    <div class="quartile-line">
+      <div class="axis"></div>
+      <div id="q1Mark" class="qmark q1"><b>Q₁</b><span></span></div>
+      <div id="medMark" class="qmark"><b>Median</b><span></span></div>
+      <div id="q3Mark" class="qmark q3"><b>Q₃</b><span></span></div>
+    </div>
+  </div>
+
+  <div class="step-box" id="quartileWorking"></div>
+</section>
+
+<section id="page-mode" class="panel page hidden">
+  <div class="section-head">
+    <div><div class="kicker">Mode from continuous series</div><h2>Start with the modal class</h2></div>
+  </div>
+
+  <div class="grid2" style="margin-top:12px">
+    <div class="panel">
+      <div class="formula">Mode = L + [(f₁ − f₀) / (2f₁ − f₀ − f₂)] × h</div>
+      <div id="modeParameters" class="formula-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div>
+    </div>
+
+    <div class="panel">
+      <div class="kicker">Substitution</div>
+      <div id="modeWorking" class="step-box"></div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <strong>Remember:</strong> the modal class is the class interval with the highest frequency.
+    Here, f₁ = frequency of modal class, f₀ = frequency before it, and f₂ = frequency after it.
+  </div>
+</section>
+
+<section id="page-practice" class="panel page hidden">
+  <div class="section-head">
+    <div><div class="kicker">Exam practice</div><h2>Use the current table</h2></div>
+    <button id="newQuestion" class="ghost" type="button">New question</button>
+  </div>
+
+  <div class="exam-grid" style="margin-top:12px">
+    <div class="challenge">
+      <div id="practicePrompt" class="problem"></div>
+      <input id="practiceAns" type="number" step=".01" style="margin-top:10px">
+      <div class="btnrow">
+        <button id="checkPractice" class="green" type="button">Check</button>
+        <button id="showHint" class="ghost" type="button">Hint</button>
+      </div>
+      <div id="practiceFb" class="feedback"></div>
+    </div>
+
+    <div class="mini">
+      <h3>Fast formula map</h3>
+      <p><strong>Mean:</strong> midpoint → fm → Σfm/N</p>
+      <p><strong>Median:</strong> cf → N/2 → median class → formula</p>
+      <p><strong>Q₁:</strong> cf → N/4 → Q₁ class → formula</p>
+      <p><strong>Q₃:</strong> cf → 3N/4 → Q₃ class → formula</p>
+      <p><strong>Mode:</strong> highest f → f₀, f₁, f₂ → formula</p>
+    </div>
+  </div>
+
+  <div class="formula-grid" style="margin-top:12px">
+    <div class="formula-card"><h3>Mean</h3><span class="formula">x̄ = Σfm/N</span></div>
+    <div class="formula-card"><h3>Median</h3><span class="formula">L + [(N/2−cf)/f]h</span></div>
+    <div class="formula-card"><h3>Mode</h3><span class="formula">L + [(f₁−f₀)/(2f₁−f₀−f₂)]h</span></div>
+    <div class="formula-card"><h3>Q₁</h3><span class="formula">L + [(N/4−cf)/f]h</span></div>
+    <div class="formula-card"><h3>Q₃</h3><span class="formula">L + [(3N/4−cf)/f]h</span></div>
+  </div>
+</section>
+
+<footer>MathLab 10 • Statistics • Continuous Series</footer>
+</main>
+
 <script>
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById("page-"+b.dataset.page).classList.remove("hidden")}));
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+  document.getElementById("page-"+b.dataset.page).classList.remove("hidden");
+}));
 
-const st$=s=>document.querySelector(s);function stRender(){let a=st$("#stData").value.split(",").map(Number).filter(Number.isFinite).sort((x,y)=>x-y);if(!a.length)return;let mean=a.reduce((x,y)=>x+y,0)/a.length,med=a.length%2?a[(a.length-1)/2]:(a[a.length/2-1]+a[a.length/2])/2,f={};a.forEach(x=>f[x]=(f[x]||0)+1);let mf=Math.max(...Object.values(f)),modes=Object.keys(f).filter(k=>f[k]===mf).join(", "),range=a.at(-1)-a[0];st$("#stMetrics").innerHTML=[["n",a.length],["Mean",mean.toFixed(2)],["Median",med],["Mode",modes],["Range",range]].map((x,i)=>`<div class="metric ${i===1?"primary":""}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");let entries=Object.entries(f),max=Math.max(...entries.map(x=>x[1]));st$("#stSvg").innerHTML=`<line x1="45" y1="290" x2="660" y2="290" stroke="#b7bdcc"/>`+entries.map(([v,n],i)=>{let w=Math.min(60,520/entries.length),x=75+i*(560/Math.max(entries.length,1)),h=n/max*210;return `<rect x="${x-w/2}" y="${290-h}" width="${w}" height="${h}" rx="5" fill="#5b5bd6"/><text x="${x}" y="312" text-anchor="middle" font-size="12">${v}</text><text x="${x}" y="${278-h}" text-anchor="middle" font-size="12">${n}</text>`}).join("")}st$("#stCalc").onclick=stRender;st$("#stCheck").onclick=()=>st$("#stFb").textContent=(+st$("#stAns").value===8)?"✅ Correct.":"Order the data and take the middle value.";st$("#stCheck2").onclick=()=>st$("#stFb2").textContent=(+st$("#stAns2").value===50)?"✅ Correct. Sum = mean × n.":"Use sum = mean × number of values.";stRender();
+const st$=s=>document.querySelector(s);
 
-</script></body></html>
+const PRESETS={
+  quartile:[
+    {l:10,u:20,f:2},{l:20,u:30,f:8},{l:30,u:40,f:15},
+    {l:40,u:50,f:14},{l:50,u:60,f:10},{l:60,u:70,f:8},{l:70,u:80,f:3}
+  ],
+  median:[
+    {l:0,u:8,f:6},{l:8,u:16,f:10},{l:16,u:24,f:16},
+    {l:24,u:32,f:18},{l:32,u:40,f:12},{l:40,u:48,f:10},{l:48,u:56,f:8}
+  ],
+  mean:[
+    {l:10,u:20,f:6},{l:20,u:30,f:14},{l:30,u:40,f:13},{l:40,u:50,f:7}
+  ],
+  mode:[
+    {l:0,u:10,f:5},{l:10,u:20,f:9},{l:20,u:30,f:14},
+    {l:30,u:40,f:20},{l:40,u:50,f:12},{l:50,u:60,f:6}
+  ],
+  inclusive:[
+    {l:10,u:19,f:5},{l:20,u:29,f:9},{l:30,u:39,f:14},
+    {l:40,u:49,f:18},{l:50,u:59,f:10}
+  ]
+};
+
+let rows=[];
+let visualMode="hist";
+let currentStats=null;
+let practice={};
+
+function clonePreset(name){
+  return PRESETS[name].map(x=>({...x}));
+}
+
+function fmt(n,d=2){
+  if(!Number.isFinite(n)) return "—";
+  const rounded=Math.round(n*Math.pow(10,d))/Math.pow(10,d);
+  return rounded.toLocaleString(undefined,{maximumFractionDigits:d});
+}
+
+function renderEditor(){
+  st$("#editRows").innerHTML=rows.map((r,i)=>`
+    <tr data-row="${i}">
+      <td><input type="number" step=".01" class="lower" value="${r.l}"></td>
+      <td><input type="number" step=".01" class="upper" value="${r.u}"></td>
+      <td><input type="number" step="1" min="0" class="freq" value="${r.f}"></td>
+      <td><button type="button" class="remove" data-remove="${i}" aria-label="Remove class">×</button></td>
+    </tr>`).join("");
+
+  st$("#editRows").querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("input",readEditorAndUpdate);
+  });
+  st$("#editRows").querySelectorAll("[data-remove]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      if(rows.length<=2) return;
+      rows.splice(+btn.dataset.remove,1);
+      renderEditor();
+      updateAll();
+    });
+  });
+}
+
+function readEditorAndUpdate(){
+  const trs=[...st$("#editRows").querySelectorAll("tr")];
+  rows=trs.map(tr=>({
+    l:+tr.querySelector(".lower").value,
+    u:+tr.querySelector(".upper").value,
+    f:+tr.querySelector(".freq").value
+  }));
+  updateAll();
+}
+
+function validate(rs){
+  if(rs.length<2) return {ok:false,msg:"Add at least two class intervals."};
+  for(let i=0;i<rs.length;i++){
+    const r=rs[i];
+    if(!Number.isFinite(r.l)||!Number.isFinite(r.u)||!Number.isFinite(r.f))
+      return {ok:false,msg:"Every lower limit, upper limit and frequency must be a number."};
+    if(r.u<=r.l) return {ok:false,msg:`Class ${i+1}: upper limit must be greater than lower limit.`};
+    if(r.f<0) return {ok:false,msg:`Class ${i+1}: frequency cannot be negative.`};
+    if(i>0 && r.l<rs[i-1].l) return {ok:false,msg:"Keep class intervals in ascending order."};
+  }
+
+  const gaps=[];
+  for(let i=0;i<rs.length-1;i++) gaps.push(rs[i+1].l-rs[i].u);
+  const continuous=gaps.every(g=>Math.abs(g)<1e-9);
+  const nonOverlap=gaps.every(g=>g>=-1e-9);
+  if(!nonOverlap) return {ok:false,msg:"Class intervals overlap. Check the limits."};
+
+  const positiveGaps=gaps.filter(g=>g>1e-9);
+  return {
+    ok:true,
+    continuous,
+    gaps,
+    msg:continuous
+      ?"✓ This is a continuous series: each class touches the next class."
+      :`These classes are not continuous yet. Gap(s): ${positiveGaps.map(g=>fmt(g)).join(", ")}. Use “Make continuous” when the gaps are equal.`
+  };
+}
+
+function computeStats(rs){
+  let cf=0,sumFM=0,N=0;
+  const data=rs.map((r,i)=>{
+    const m=(r.l+r.u)/2;
+    const fm=m*r.f;
+    N+=r.f; sumFM+=fm; cf+=r.f;
+    return {...r,m,fm,cf,h:r.u-r.l,index:i};
+  });
+  if(N<=0) return null;
+
+  const mean=sumFM/N;
+
+  function positional(pos){
+    let prev=0;
+    let found=data[data.length-1];
+    for(const r of data){
+      if(r.cf+1e-9>=pos){found=r;break}
+      prev=r.cf;
+    }
+    const f=found.f;
+    const value=f>0 ? found.l+((pos-prev)/f)*found.h : NaN;
+    return {value,row:found,prevCf:prev,pos};
+  }
+
+  const q1=positional(N/4);
+  const med=positional(N/2);
+  const q3=positional(3*N/4);
+
+  let maxF=Math.max(...data.map(r=>r.f));
+  const modalIndices=data.filter(r=>r.f===maxF).map(r=>r.index);
+  const mi=modalIndices[0];
+  const mr=data[mi];
+  const f1=mr.f, f0=mi>0?data[mi-1].f:0, f2=mi<data.length-1?data[mi+1].f:0;
+  const den=2*f1-f0-f2;
+  const mode=den!==0 ? mr.l+((f1-f0)/den)*mr.h : NaN;
+
+  const assumedIndex=Math.floor((data.length-1)/2);
+  const A=data[assumedIndex].m;
+  let sumFD=0;
+  const assumed=data.map(r=>{
+    const d=r.m-A, fd=r.f*d;
+    sumFD+=fd;
+    return {...r,d,fd};
+  });
+  const meanAssumed=A+sumFD/N;
+
+  return {data,N,sumFM,mean,q1,med,q3,mode,modalIndex:mi,modalIndices,f0,f1,f2,A,sumFD,assumed,meanAssumed};
+}
+
+function updateStatus(v){
+  const el=st$("#seriesStatus");
+  el.className="status "+(v.ok?(v.continuous?"good":"warn"):"bad");
+  el.textContent=v.msg;
+}
+
+function updateAll(){
+  const v=validate(rows);
+  updateStatus(v);
+  if(!v.ok){
+    currentStats=null;
+    clearOutputs();
+    return;
+  }
+  currentStats=computeStats(rows);
+  if(!currentStats){
+    st$("#seriesStatus").className="status bad";
+    st$("#seriesStatus").textContent="Total frequency N must be greater than zero.";
+    clearOutputs();
+    return;
+  }
+  renderCalculationTable();
+  renderMainMetrics();
+  renderGraph();
+  renderMean();
+  renderQuartiles();
+  renderMode();
+}
+
+function clearOutputs(){
+  st$("#mainMetrics").innerHTML="";
+  st$("#calcRows").innerHTML="";
+  st$("#calcFoot").innerHTML="";
+  st$("#statsSvg").innerHTML="";
+}
+
+function rowClass(i){
+  if(!currentStats) return "";
+  const a=[];
+  if(i===currentStats.q1.row.index) a.push("q1-row");
+  if(i===currentStats.med.row.index) a.push("med-row");
+  if(i===currentStats.q3.row.index) a.push("q3-row");
+  if(i===currentStats.modalIndex) a.push("mode-row");
+  return a.join(" ");
+}
+
+function renderCalculationTable(){
+  const s=currentStats;
+  st$("#calcRows").innerHTML=s.data.map(r=>`
+    <tr class="${rowClass(r.index)}">
+      <td>${fmt(r.l)}–${fmt(r.u)}</td>
+      <td>${fmt(r.f,0)}</td>
+      <td>${fmt(r.m)}</td>
+      <td>${fmt(r.fm)}</td>
+      <td>${fmt(r.cf,0)}</td>
+    </tr>`).join("");
+  st$("#calcFoot").innerHTML=`
+    <tr><th>Total</th><th>Σf = ${fmt(s.N,0)}</th><th>—</th><th>Σfm = ${fmt(s.sumFM)}</th><th>—</th></tr>`;
+}
+
+function renderMainMetrics(){
+  const s=currentStats;
+  st$("#mainMetrics").innerHTML=[
+    ["N",fmt(s.N,0)],
+    ["Mean",fmt(s.mean)],
+    ["Q₁",fmt(s.q1.value)],
+    ["Median",fmt(s.med.value)],
+    ["Q₃",fmt(s.q3.value)],
+    ["Mode",fmt(s.mode)]
+  ].map((x,i)=>`<div class="metric ${i===3?"primary":""}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+}
+
+function renderGraph(){
+  if(!currentStats) return;
+  const s=currentStats;
+  const svg=st$("#statsSvg");
+
+  if(visualMode==="hist"){
+    const maxF=Math.max(...s.data.map(r=>r.f),1);
+    const n=s.data.length;
+    const left=55,right=720,base=300,top=35;
+    const plotW=right-left;
+    const bw=plotW/n;
+    let out=`<line x1="${left}" y1="${base}" x2="${right}" y2="${base}" stroke="#aeb4c3"/>
+             <line x1="${left}" y1="${top}" x2="${left}" y2="${base}" stroke="#aeb4c3"/>`;
+
+    s.data.forEach((r,i)=>{
+      const h=r.f/maxF*220;
+      const x=left+i*bw;
+      const hit=i===s.modalIndex;
+      out+=`<rect x="${x+1}" y="${base-h}" width="${Math.max(4,bw-2)}" height="${h}"
+             fill="${hit?"#16a37a":"#5b5bd6"}" opacity="${hit?1:.82}"/>
+             <text x="${x+bw/2}" y="${base+20}" text-anchor="middle" font-size="11" fill="#555b70">${fmt(r.l,0)}–${fmt(r.u,0)}</text>
+             <text x="${x+bw/2}" y="${base-h-8}" text-anchor="middle" font-size="11" fill="#17192b">${fmt(r.f,0)}</text>`;
+    });
+    out+=`<text x="18" y="170" text-anchor="middle" transform="rotate(-90 18 170)" font-size="12" fill="#71768a">Frequency</text>`;
+    svg.innerHTML=out;
+  } else {
+    const maxCf=s.N;
+    const n=s.data.length;
+    const left=55,right=720,base=300,top=35;
+    const plotW=right-left;
+    const points=[{x:s.data[0].l,cf:0},...s.data.map(r=>({x:r.u,cf:r.cf}))];
+    const minX=points[0].x,maxX=points.at(-1).x;
+    const X=x=>left+(x-minX)/(maxX-minX||1)*plotW;
+    const Y=cf=>base-cf/maxCf*230;
+    let out=`<line x1="${left}" y1="${base}" x2="${right}" y2="${base}" stroke="#aeb4c3"/>
+             <line x1="${left}" y1="${top}" x2="${left}" y2="${base}" stroke="#aeb4c3"/>
+             <polyline points="${points.map(p=>`${X(p.x)},${Y(p.cf)}`).join(" ")}" fill="none" stroke="#5b5bd6" stroke-width="4"/>`;
+
+    points.forEach(p=>{
+      out+=`<circle cx="${X(p.x)}" cy="${Y(p.cf)}" r="5" fill="#fff" stroke="#5b5bd6" stroke-width="3"/>`;
+    });
+
+    [["Q₁",s.N/4,"#129ec6"],["Md",s.N/2,"#5b5bd6"],["Q₃",3*s.N/4,"#f59e0b"]].forEach(([name,pos,color])=>{
+      out+=`<line x1="${left}" y1="${Y(pos)}" x2="${right}" y2="${Y(pos)}" stroke="${color}" stroke-width="1.5" stroke-dasharray="6 5"/>
+            <text x="${right-4}" y="${Y(pos)-5}" text-anchor="end" font-size="11" fill="${color}">${name}: position ${fmt(pos)}</text>`;
+    });
+
+    s.data.forEach(r=>{
+      out+=`<text x="${X(r.u)}" y="${base+20}" text-anchor="middle" font-size="11" fill="#555b70">${fmt(r.u,0)}</text>`;
+    });
+    out+=`<text x="18" y="170" text-anchor="middle" transform="rotate(-90 18 170)" font-size="12" fill="#71768a">Cumulative frequency</text>`;
+    svg.innerHTML=out;
+  }
+}
+
+function renderMean(){
+  if(!currentStats) return;
+  const s=currentStats;
+  st$("#directMeanWorking").innerHTML=
+    `<strong>Step 1:</strong> Find each midpoint m = (lower + upper)/2.<br>`+
+    `<strong>Step 2:</strong> Multiply f × m and add them: Σfm = <b>${fmt(s.sumFM)}</b>.<br>`+
+    `<strong>Step 3:</strong> N = Σf = <b>${fmt(s.N,0)}</b>.<br>`+
+    `<span class="formula">x̄ = ${fmt(s.sumFM)} / ${fmt(s.N,0)} = ${fmt(s.mean)}</span>`;
+
+  st$("#assumedMeanWorking").innerHTML=
+    `<strong>Choose A = ${fmt(s.A)}</strong> (a convenient midpoint).<br>`+
+    `For each class, d = m − A and then find fd.<br>`+
+    `Σfd = <b>${fmt(s.sumFD)}</b>, N = <b>${fmt(s.N,0)}</b>.<br>`+
+    `<span class="formula">x̄ = ${fmt(s.A)} + (${fmt(s.sumFD)} / ${fmt(s.N,0)}) = ${fmt(s.meanAssumed)}</span>`;
+
+  st$("#assumedRows").innerHTML=s.assumed.map(r=>`
+    <tr><td>${fmt(r.l)}–${fmt(r.u)}</td><td>${fmt(r.f,0)}</td><td>${fmt(r.m)}</td><td>${fmt(r.d)}</td><td>${fmt(r.fd)}</td></tr>`
+  ).join("");
+  st$("#assumedFoot").innerHTML=`<tr><th>Total</th><th>N = ${fmt(s.N,0)}</th><th>—</th><th>—</th><th>Σfd = ${fmt(s.sumFD)}</th></tr>`;
+}
+
+function positionalCard(name,obj,formula){
+  const r=obj.row;
+  return `<div class="formula-card">
+    <h3>${name}</h3>
+    <div class="small">Position = ${fmt(obj.pos)}th item</div>
+    <div class="small">Class = ${fmt(r.l)}–${fmt(r.u)}</div>
+    <span class="formula">${formula}</span>
+    <div class="result">${fmt(obj.value)}</div>
+  </div>`;
+}
+
+function renderQuartiles(){
+  if(!currentStats) return;
+  const s=currentStats;
+
+  st$("#quartileCards").innerHTML=
+    positionalCard("First quartile Q₁",s.q1,"L + [(N/4−cf)/f]h")+
+    positionalCard("Median",s.med,"L + [(N/2−cf)/f]h")+
+    positionalCard("Third quartile Q₃",s.q3,"L + [(3N/4−cf)/f]h");
+
+  const min=s.data[0].l,max=s.data.at(-1).u;
+  function pct(v){return Math.max(4,Math.min(96,(v-min)/(max-min||1)*92+4))}
+  st$("#q1Mark").style.left=pct(s.q1.value)+"%";
+  st$("#medMark").style.left=pct(s.med.value)+"%";
+  st$("#q3Mark").style.left=pct(s.q3.value)+"%";
+  st$("#q1Mark span").textContent=fmt(s.q1.value);
+  st$("#medMark span").textContent=fmt(s.med.value);
+  st$("#q3Mark span").textContent=fmt(s.q3.value);
+
+  function detail(label,obj,posText){
+    const r=obj.row;
+    return `<strong>${label}</strong>: ${posText} = ${fmt(obj.pos)}. This lies in class <b>${fmt(r.l)}–${fmt(r.u)}</b>.<br>`+
+           `L=${fmt(r.l)}, cf=${fmt(obj.prevCf,0)}, f=${fmt(r.f,0)}, h=${fmt(r.h)}.<br>`+
+           `= ${fmt(r.l)} + [(${fmt(obj.pos)} − ${fmt(obj.prevCf,0)}) / ${fmt(r.f,0)}] × ${fmt(r.h)} = <b>${fmt(obj.value)}</b>`;
+  }
+
+  st$("#quartileWorking").innerHTML=
+    detail("Q₁",s.q1,"N/4")+"<br><br>"+
+    detail("Median",s.med,"N/2")+"<br><br>"+
+    detail("Q₃",s.q3,"3N/4");
+}
+
+function renderMode(){
+  if(!currentStats) return;
+  const s=currentStats;
+  const r=s.data[s.modalIndex];
+  const tie=s.modalIndices.length>1;
+
+  st$("#modeParameters").innerHTML=[
+    ["Modal class",`${fmt(r.l)}–${fmt(r.u)}`],
+    ["L",fmt(r.l)],
+    ["f₀",fmt(s.f0,0)],
+    ["f₁",fmt(s.f1,0)],
+    ["f₂",fmt(s.f2,0)],
+    ["h",fmt(r.h)]
+  ].map(x=>`<div class="formula-card"><h3>${x[0]}</h3><div class="result" style="font-size:20px">${x[1]}</div></div>`).join("");
+
+  if(tie){
+    st$("#modeWorking").innerHTML=`There is more than one class with the highest frequency (${fmt(s.f1,0)}). The grouped-mode formula is not uniquely determined from this table.`;
+  }else{
+    st$("#modeWorking").innerHTML=
+      `Modal class = <strong>${fmt(r.l)}–${fmt(r.u)}</strong> because it has the highest frequency ${fmt(s.f1,0)}.<br>`+
+      `Mode = ${fmt(r.l)} + [(${fmt(s.f1,0)} − ${fmt(s.f0,0)}) / (2×${fmt(s.f1,0)} − ${fmt(s.f0,0)} − ${fmt(s.f2,0)})] × ${fmt(r.h)}<br>`+
+      `<span class="formula">Mode = ${fmt(s.mode)}</span>`;
+  }
+}
+
+function makeContinuous(){
+  const v=validate(rows);
+  if(!v.ok) return;
+  if(v.continuous){
+    st$("#seriesStatus").className="status good";
+    st$("#seriesStatus").textContent="The series is already continuous.";
+    return;
+  }
+  const gaps=[];
+  for(let i=0;i<rows.length-1;i++) gaps.push(rows[i+1].l-rows[i].u);
+  if(gaps.some(g=>g<=0)){
+    st$("#seriesStatus").className="status bad";
+    st$("#seriesStatus").textContent="Automatic conversion works only for non-overlapping inclusive classes.";
+    return;
+  }
+  const g=gaps[0];
+  if(!gaps.every(x=>Math.abs(x-g)<1e-9)){
+    st$("#seriesStatus").className="status bad";
+    st$("#seriesStatus").textContent="The gaps are unequal, so one common correction factor cannot be used.";
+    return;
+  }
+  const c=g/2;
+  rows=rows.map(r=>({l:r.l-c,u:r.u+c,f:r.f}));
+  renderEditor();
+  updateAll();
+  st$("#seriesStatus").className="status good";
+  st$("#seriesStatus").textContent=`Converted to continuous classes using correction factor ${fmt(c)}.`;
+}
+
+function newPractice(){
+  if(!currentStats) return;
+  const s=currentStats;
+  const qs=[
+    {q:"Find the total frequency N.",a:s.N,h:"Add all frequencies: N = Σf."},
+    {q:"Find the mean of the current continuous series.",a:s.mean,h:"Find mid-values m, then use x̄ = Σfm/N."},
+    {q:"Find the median of the current continuous series.",a:s.med.value,h:"Make cf, locate N/2, then use the median formula."},
+    {q:"Find the first quartile Q₁.",a:s.q1.value,h:"Locate the N/4th item using cumulative frequency."},
+    {q:"Find the third quartile Q₃.",a:s.q3.value,h:"Locate the 3N/4th item using cumulative frequency."},
+    {q:"Find the mode of the current continuous series.",a:s.mode,h:"Identify the highest-frequency class, then use f₀, f₁ and f₂."},
+    {q:"Find Σfm for the current table.",a:s.sumFM,h:"Multiply each frequency by its class midpoint and add."},
+    {q:"Find the class width h of the median class.",a:s.med.row.h,h:"h = upper limit − lower limit of the median class."}
+  ].filter(x=>Number.isFinite(x.a));
+  practice=qs[Math.floor(Math.random()*qs.length)];
+  st$("#practicePrompt").textContent=practice.q;
+  st$("#practiceAns").value="";
+  st$("#practiceFb").textContent="";
+}
+
+st$("#checkPractice").addEventListener("click",()=>{
+  const x=+st$("#practiceAns").value;
+  const tol=Math.max(.02,Math.abs(practice.a)*.001);
+  st$("#practiceFb").textContent=Number.isFinite(x)&&Math.abs(x-practice.a)<=tol
+    ?`✅ Correct — ${fmt(practice.a)}.`
+    :"Not yet. Try the formula map or use the hint.";
+});
+st$("#showHint").addEventListener("click",()=>st$("#practiceFb").textContent="Hint: "+practice.h);
+st$("#newQuestion").addEventListener("click",newPractice);
+
+st$("#addClass").addEventListener("click",()=>{
+  const last=rows.at(-1);
+  const h=last?last.u-last.l:10;
+  const l=last?last.u:0;
+  rows.push({l,u:l+h,f:1});
+  renderEditor();
+  updateAll();
+});
+
+st$("#makeContinuous").addEventListener("click",makeContinuous);
+
+st$("#resetData").addEventListener("click",()=>{
+  rows=clonePreset(st$("#presetSelect").value);
+  renderEditor();
+  updateAll();
+  newPractice();
+});
+
+st$("#presetSelect").addEventListener("change",()=>{
+  rows=clonePreset(st$("#presetSelect").value);
+  renderEditor();
+  updateAll();
+  newPractice();
+});
+
+st$("#histBtn").addEventListener("click",()=>{
+  visualMode="hist";
+  st$("#histBtn").classList.add("active");
+  st$("#ogiveBtn").classList.remove("active");
+  renderGraph();
+});
+st$("#ogiveBtn").addEventListener("click",()=>{
+  visualMode="ogive";
+  st$("#ogiveBtn").classList.add("active");
+  st$("#histBtn").classList.remove("active");
+  renderGraph();
+});
+
+// initialize
+rows=clonePreset("quartile");
+renderEditor();
+updateAll();
+newPractice();
+</script>
+</body>
+</html>
