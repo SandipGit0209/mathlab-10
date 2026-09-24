@@ -21,16 +21,35 @@
 @media(max-width:900px){.fx-change-layout{grid-template-columns:1fr}.fx-direction,.fx-compare{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.fx-rate-visual,.fx-example-grid,.fx-direction,.fx-compare,.fx-change-mode{grid-template-columns:1fr}.fx-arrow{transform:rotate(90deg);text-align:center}}
 </style>
+
+<style>
+.chain-layout{display:grid;grid-template-columns:minmax(270px,.72fr) minmax(0,1.28fr);gap:14px}
+.chain-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center;margin-top:12px}
+.chain-node{border:1px solid var(--border);background:#fff;border-radius:15px;padding:14px;text-align:center;min-width:0}
+.chain-node .symbol{font-size:28px;font-weight:950;color:var(--accent);margin-bottom:4px}
+.chain-arrow{font-size:26px;font-weight:950;color:var(--accent);text-align:center}
+.chain-working{border-left:4px solid var(--accent);background:var(--panel);border-radius:0 12px 12px 0;padding:11px 12px;margin-top:10px;font-size:12px;line-height:1.65}
+.chain-rule-card{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.chain-rule-card .mini{text-align:center}
+.chain-highlight{font-family:Georgia,serif;font-size:18px;color:var(--accent);font-weight:700}
+.chain-pair{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end}
+.chain-swap{width:44px;height:44px;border-radius:11px;border:1px solid var(--border);background:var(--panel);font-size:20px;font-weight:900}
+.chain-table td:nth-child(2),.chain-table td:nth-child(3){font-family:Georgia,serif}
+@media(max-width:900px){.chain-layout{grid-template-columns:1fr}.chain-rule-card{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.chain-flow{grid-template-columns:1fr}.chain-arrow{transform:rotate(90deg)}.chain-pair{grid-template-columns:1fr}.chain-swap{width:100%}.chain-rule-card{grid-template-columns:1fr}}
+</style>
 </head>
 <body><main class="app">
 <section class="panel hero"><div><a class="back" href="../../index.html">← MathLab 10</a><div class="kicker">Lesson 4 • Currency and Exchange Rate</div><h1>Currency <span>& Exchange Rate</span></h1><p>Understand buying rate, selling rate, chain conversion, devaluation and revaluation through interactive exchange-rate labs.</p></div><div class="hero-art"><div class="hero-symbol">⇄</div><div class="hero-chip">Learn → Explore → Practice → Challenge</div></div></section>
-<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="valuechange">Devaluation & Revaluation</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
+<section class="panel"><div class="tabs"><button class="tab active" data-page="learn">Learn</button><button class="tab" data-page="explore">Explore</button><button class="tab" data-page="chain">Chain Rule</button><button class="tab" data-page="valuechange">Devaluation & Revaluation</button><button class="tab" data-page="practice">Practice</button><button class="tab" data-page="challenge">Challenge</button></div></section>
 <section id="page-learn" class="panel page"><div class="section-head"><div><div class="kicker">Key language</div><h2>Think like a money changer</h2></div></div><div class="learn-grid">
 <div class="learn-card"><h3>Buying rate</h3><p>The rate used when the bank or money changer buys foreign currency from you.</p></div>
 <div class="learn-card"><h3>Selling rate</h3><p>The rate used when the bank or money changer sells foreign currency to you.</p></div>
 <div class="learn-card"><h3>NPR → foreign currency</h3><p>You are buying foreign currency, so use the selling rate.</p><span class="formula">Foreign = NPR ÷ selling rate</span></div>
 <div class="learn-card"><h3>Foreign → NPR</h3><p>You are selling foreign currency, so use the buying rate.</p><span class="formula">NPR = foreign × buying rate</span></div>
-<div class="learn-card"><h3>Cross currency</h3><p>Convert through NPR or use a consistent chain rule.</p></div>
+<div class="learn-card"><h3>Cross currency</h3><p>When a direct rate is not given, use NPR as the common bridge.</p><span class="formula">Source → NPR → Target</span></div>
+<div class="learn-card"><h3>Chain rule idea</h3><p>Sell the source currency to get NPR, then use those NPR to buy the target currency.</p><span class="formula">Target = Source × source buying rate ÷ target selling rate</span></div>
+<div class="learn-card"><h3>Which rates?</h3><p>The bank <strong>buys</strong> the currency you give and <strong>sells</strong> the currency you receive.</p><span class="formula">Source: buying • Target: selling</span></div>
 <div class="learn-card"><h3>Spread</h3><p>Selling rate is normally greater than buying rate. The difference is the spread.</p></div>
 <div class="learn-card"><h3>Devaluation of NPR</h3><p>Nepali currency becomes weaker relative to foreign currency. In SEE-style problems, the NPR-per-foreign-currency exchange rate increases by the stated percentage.</p><span class="formula">New rate = Old rate × (1 + r/100)</span></div>
 <div class="learn-card"><h3>Revaluation of NPR</h3><p>Nepali currency becomes stronger relative to foreign currency. The NPR-per-foreign-currency exchange rate decreases by the stated percentage.</p><span class="formula">New rate = Old rate × (1 − r/100)</span></div>
@@ -41,6 +60,126 @@
 <div class="control"><label>Direction</label><select id="fxDir"><option value="toNPR">Foreign → NPR</option><option value="fromNPR">NPR → Foreign</option></select></div>
 <div class="control"><label>Amount</label><input id="fxAmt" type="number" value="500" min="0" step="1"></div>
 </div></aside><section class="panel"><div class="metrics" id="fxMetrics"></div><div class="visual"><div class="section-head"><div><div class="kicker">Reference table</div><h2>Editable textbook-style rates</h2></div></div><div class="tablewrap"><table class="table"><thead><tr><th>Currency</th><th>Unit</th><th>Buying</th><th>Selling</th></tr></thead><tbody id="fxTable"></tbody></table></div></div></section></div></section>
+
+
+<section id="page-chain" class="page hidden">
+  <div class="chain-layout">
+    <aside class="panel">
+      <div class="section-head"><div><div class="kicker">Cross-currency lab</div><h2>Learn the chain rule</h2></div></div>
+
+      <div class="mini" style="margin-top:12px">
+        <h3>The one rule to remember</h3>
+        <p>You give the bank the <strong>source currency</strong>, so it uses that currency's <strong>buying rate</strong>. You receive the <strong>target currency</strong>, so the bank uses that currency's <strong>selling rate</strong>.</p>
+      </div>
+
+      <div class="control">
+        <label>Choose currencies</label>
+        <div class="chain-pair" style="margin-top:8px">
+          <select id="chainFrom"></select>
+          <button id="chainSwap" class="chain-swap" type="button" aria-label="Swap currencies">⇄</button>
+          <select id="chainTo"></select>
+        </div>
+      </div>
+
+      <div class="control">
+        <label>Amount of source currency</label>
+        <input id="chainAmount" type="number" min=".01" step=".01" value="100" style="margin-top:8px">
+      </div>
+
+      <div class="control">
+        <label>Learning rates</label>
+        <div class="small" style="margin-top:6px">These are the same fixed practice/reference rates used by this MathLab module; they are not live market rates.</div>
+      </div>
+
+      <div class="btnrow">
+        <button id="chainExampleBtn" class="primary" type="button">Random example</button>
+      </div>
+
+      <div class="chain-working" id="chainMemory"></div>
+    </aside>
+
+    <section class="panel">
+      <div class="section-head">
+        <div><div class="kicker">Conversion path</div><h2>Follow the money</h2></div>
+        <span class="small" id="chainResultTop"></span>
+      </div>
+
+      <div class="chain-flow">
+        <div class="chain-node">
+          <div class="small">STEP 1 • SOURCE</div>
+          <div class="symbol" id="chainSourceCode">EUR</div>
+          <strong id="chainSourceAmount">100.00</strong>
+          <div class="small" id="chainSourceRate"></div>
+        </div>
+
+        <div class="chain-arrow">→</div>
+
+        <div class="chain-node">
+          <div class="small">STEP 2 • COMMON BRIDGE</div>
+          <div class="symbol">NPR</div>
+          <strong id="chainNprAmount">0.00</strong>
+          <div class="small">using source buying rate</div>
+        </div>
+
+        <div class="chain-arrow">→</div>
+
+        <div class="chain-node">
+          <div class="small">STEP 3 • TARGET</div>
+          <div class="symbol" id="chainTargetCode">USD</div>
+          <strong id="chainTargetAmount">0.00</strong>
+          <div class="small" id="chainTargetRate"></div>
+        </div>
+      </div>
+
+      <div class="chain-rule-card">
+        <div class="mini">
+          <h3>① Sell source</h3>
+          <div class="chain-highlight" id="chainStep1Formula"></div>
+          <p>Use source currency's buying rate.</p>
+        </div>
+        <div class="mini">
+          <h3>② Buy target</h3>
+          <div class="chain-highlight" id="chainStep2Formula"></div>
+          <p>Use target currency's selling rate.</p>
+        </div>
+        <div class="mini">
+          <h3>③ Direct chain</h3>
+          <div class="chain-highlight" id="chainCombinedFormula"></div>
+          <p>Combine both steps into one expression.</p>
+        </div>
+      </div>
+
+      <div class="visual">
+        <div class="small">Detailed working</div>
+        <div id="chainDetailedWorking" class="chain-working"></div>
+      </div>
+
+      <div class="visual">
+        <div class="small">Why not use buying rate twice?</div>
+        <div class="small" style="margin-top:6px">Because the bank's role changes. It <strong>buys</strong> what you hand over, but it <strong>sells</strong> what you ask to receive.</div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:14px">
+    <div class="section-head"><div><div class="kicker">Chain rule pattern</div><h2>Write units so they cancel</h2></div></div>
+    <div class="chain-working">
+      <span class="chain-highlight">Source × (NPR / Source) × (Target / NPR) = Target</span><br>
+      The source unit cancels first, then NPR cancels, leaving only the target currency. This is why the chain rule is reliable.
+    </div>
+
+    <div class="tablewrap" style="margin-top:10px">
+      <table class="table chain-table">
+        <thead><tr><th>Stage</th><th>Operation</th><th>Rate to use</th></tr></thead>
+        <tbody>
+          <tr><td>Source → NPR</td><td>Multiply</td><td>Source buying rate</td></tr>
+          <tr><td>NPR → Target</td><td>Divide</td><td>Target selling rate</td></tr>
+          <tr><td>Unit-based quotation</td><td>Adjust by quoted unit</td><td>Example: 10 JPY quotation means multiply/divide using 10 units</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
 
 <section id="page-valuechange" class="page hidden">
   <div class="fx-change-layout">
@@ -150,6 +289,13 @@
   </section>
 </section>
 <section id="page-practice" class="panel page hidden"><div class="section-head"><div><div class="kicker">Practice</div><h2>Which rate should you use?</h2></div></div><div class="challenge"><div class="problem">You have Nepali rupees and want to buy US dollars from a bank. Which rate applies?</div><div class="btnrow"><button class="ghost fxOpt">Buying rate</button><button class="ghost fxOpt" data-good="1">Selling rate</button></div><div id="fxPracticeFb" class="feedback"></div></div>
+
+<div class="challenge" style="margin-top:10px">
+  <div class="problem">Chain rule: If 1 EUR has a buying rate of Rs. 132 and 1 USD has a selling rate of Rs. 125, how many USD can be obtained from EUR 100?</div>
+  <input id="chainPracticeAns" type="number" step=".01" style="margin-top:10px">
+  <div class="btnrow"><button id="chainPracticeCheck" class="green">Check</button></div>
+  <div id="chainPracticeFb" class="feedback"></div>
+</div>
 <div class="challenge" style="margin-top:10px">
   <div class="problem">If $1 = Rs. 133.63 and Nepali currency is devalued by 1.5%, what is the new exchange rate?</div>
   <input id="changePracticeAns" type="number" step=".01" style="margin-top:10px" placeholder="New NPR per $1">
@@ -157,6 +303,14 @@
   <div id="changePracticeFb" class="feedback"></div>
 </div></section>
 <section id="page-challenge" class="panel page hidden"><div class="section-head"><div><div class="kicker">Cross-currency challenge</div><h2>Convert through NPR</h2></div></div><div class="challenge"><div class="problem">Using the reference rates, how many Japanese Yen can be obtained from 1 Canadian Dollar if CAD buying rate is Rs. 98.08 and 10 JPY selling rate is Rs. 9.37?</div><input id="fxAns" type="number" step=".01" style="margin-top:10px"><div class="btnrow"><button class="green" id="fxCheck">Check</button></div><div id="fxFb" class="feedback"></div></div>
+
+<div class="challenge" style="margin-top:10px">
+  <div class="kicker">Chain-rule challenge</div>
+  <div id="chainChallengePrompt" class="problem" style="margin-top:5px"></div>
+  <input id="chainChallengeAns" type="number" step=".01" style="margin-top:10px">
+  <div class="btnrow"><button id="chainChallengeCheck" class="green">Check</button><button id="chainChallengeNew" class="ghost">New</button></div>
+  <div id="chainChallengeFb" class="feedback"></div>
+</div>
 <div class="challenge" style="margin-top:10px">
   <div class="kicker">Value-change challenge</div>
   <div id="changeChallengePrompt" class="problem" style="margin-top:5px"></div>
@@ -177,6 +331,152 @@ f$("#fxTable").innerHTML=Object.entries(rates).map(([k,r])=>`<tr><td>${k}</td><t
 document.querySelectorAll(".fxOpt").forEach(b=>b.onclick=()=>f$("#fxPracticeFb").textContent=b.dataset.good?"✅ Correct — you are buying foreign currency from the bank.":"Not this one. Think from the bank's point of view.");
 f$("#fxCheck").onclick=()=>{let ans=98.08/9.37*10,ok=Math.abs(+f$("#fxAns").value-ans)<.05;f$("#fxFb").textContent=ok?`✅ Correct — about ${ans.toFixed(2)} JPY.`:"Try: convert CAD to NPR using the CAD buying rate, then NPR to JPY using the JPY selling rate."};fxRender();
 
+
+
+
+// ------------------------------------------------------------
+// Chain Rule Lab
+// Cross-currency conversion uses NPR as a common bridge.
+// Source currency -> bank buying rate -> NPR -> target selling rate -> target.
+// ------------------------------------------------------------
+const chainNames={
+  USD:"US Dollar",
+  GBP:"Pound Sterling",
+  EUR:"Euro",
+  JPY:"Japanese Yen",
+  AUD:"Australian Dollar"
+};
+
+function populateChainCurrencies(){
+  const codes=Object.keys(rates);
+  const options=codes.map(c=>`<option value="${c}">${c} — ${chainNames[c]||c}</option>`).join("");
+  f$("#chainFrom").innerHTML=options;
+  f$("#chainTo").innerHTML=options;
+  f$("#chainFrom").value="EUR";
+  f$("#chainTo").value="USD";
+}
+
+function chainConvert(amount,from,to){
+  const rf=rates[from], rt=rates[to];
+
+  // Convert source currency to NPR using bank buying rate.
+  const npr=amount/rf.u*rf.b;
+
+  // Convert NPR to target currency using bank selling rate.
+  const target=npr/rt.s*rt.u;
+
+  return {npr,target,rf,rt};
+}
+
+function renderChain(){
+  const from=f$("#chainFrom").value;
+  const to=f$("#chainTo").value;
+  const amount=Math.max(.01,+f$("#chainAmount").value||1);
+
+  if(from===to){
+    f$("#chainTo").value=Object.keys(rates).find(c=>c!==from);
+  }
+
+  const actualTo=f$("#chainTo").value;
+  const {npr,target,rf,rt}=chainConvert(amount,from,actualTo);
+
+  f$("#chainSourceCode").textContent=from;
+  f$("#chainTargetCode").textContent=actualTo;
+  f$("#chainSourceAmount").textContent=`${money2(amount)} ${from}`;
+  f$("#chainNprAmount").textContent=`Rs. ${money2(npr)}`;
+  f$("#chainTargetAmount").textContent=`${money2(target)} ${actualTo}`;
+
+  f$("#chainSourceRate").textContent=`Bank buys ${rf.u} ${from} for Rs. ${rf.b}`;
+  f$("#chainTargetRate").textContent=`Bank sells ${rt.u} ${actualTo} for Rs. ${rt.s}`;
+
+  f$("#chainStep1Formula").textContent=
+    `${money2(amount)} ÷ ${rf.u} × ${rf.b}`;
+
+  f$("#chainStep2Formula").textContent=
+    `${money2(npr)} ÷ ${rt.s} × ${rt.u}`;
+
+  f$("#chainCombinedFormula").textContent=
+    `${money2(amount)} × (${rf.b}/${rf.u}) × (${rt.u}/${rt.s})`;
+
+  f$("#chainResultTop").textContent=
+    `${money2(amount)} ${from} → ${money2(target)} ${actualTo}`;
+
+  f$("#chainDetailedWorking").innerHTML=
+    `<strong>Step 1: Convert ${from} to NPR.</strong><br>`+
+    `NPR = ${money2(amount)} ÷ ${rf.u} × ${rf.b} = <strong>Rs. ${money2(npr)}</strong><br><br>`+
+    `<strong>Step 2: Convert NPR to ${actualTo}.</strong><br>`+
+    `${actualTo} = ${money2(npr)} ÷ ${rt.s} × ${rt.u} = <strong>${money2(target)} ${actualTo}</strong><br><br>`+
+    `<span class="chain-highlight">Answer: ${money2(target)} ${actualTo}</span>`;
+
+  f$("#chainMemory").innerHTML=
+    `<strong>Memory trick:</strong><br>`+
+    `You <strong>SELL</strong> ${from} to the bank → use ${from} <strong>BUYING</strong> rate.<br>`+
+    `You <strong>BUY</strong> ${actualTo} from the bank → use ${actualTo} <strong>SELLING</strong> rate.`;
+}
+
+f$("#chainFrom").addEventListener("change",renderChain);
+f$("#chainTo").addEventListener("change",renderChain);
+f$("#chainAmount").addEventListener("input",renderChain);
+
+f$("#chainSwap").onclick=()=>{
+  const a=f$("#chainFrom").value;
+  const b=f$("#chainTo").value;
+  f$("#chainFrom").value=b;
+  f$("#chainTo").value=a;
+  renderChain();
+};
+
+f$("#chainExampleBtn").onclick=()=>{
+  const codes=Object.keys(rates);
+  let from=codes[Math.floor(Math.random()*codes.length)];
+  let to=codes[Math.floor(Math.random()*codes.length)];
+  while(to===from) to=codes[Math.floor(Math.random()*codes.length)];
+  const amounts=[50,100,200,500,1000];
+  f$("#chainFrom").value=from;
+  f$("#chainTo").value=to;
+  f$("#chainAmount").value=amounts[Math.floor(Math.random()*amounts.length)];
+  renderChain();
+};
+
+f$("#chainPracticeCheck").onclick=()=>{
+  const ans=100*132/125;
+  const x=+f$("#chainPracticeAns").value;
+  const ok=Number.isFinite(x)&&Math.abs(x-ans)<.02;
+  f$("#chainPracticeFb").textContent=ok
+    ?`✅ Correct — ${ans.toFixed(2)} USD.`
+    :"First convert EUR to NPR using EUR buying rate, then NPR to USD using USD selling rate.";
+};
+
+let chainChallenge={};
+
+function newChainChallenge(){
+  const codes=Object.keys(rates);
+  let from=codes[Math.floor(Math.random()*codes.length)];
+  let to=codes[Math.floor(Math.random()*codes.length)];
+  while(to===from) to=codes[Math.floor(Math.random()*codes.length)];
+
+  const amounts=[50,100,250,500,750,1000];
+  const amount=amounts[Math.floor(Math.random()*amounts.length)];
+  const result=chainConvert(amount,from,to);
+
+  chainChallenge={from,to,amount,answer:result.target};
+
+  f$("#chainChallengePrompt").textContent=
+    `Using the reference table, convert ${amount} ${from} into ${to} by the chain rule.`;
+
+  f$("#chainChallengeAns").value="";
+  f$("#chainChallengeFb").textContent="";
+}
+
+f$("#chainChallengeCheck").onclick=()=>{
+  const x=+f$("#chainChallengeAns").value;
+  const ok=Number.isFinite(x)&&Math.abs(x-chainChallenge.answer)<.03;
+  f$("#chainChallengeFb").textContent=ok
+    ?`✅ Correct — about ${chainChallenge.answer.toFixed(2)} ${chainChallenge.to}.`
+    :`Use ${chainChallenge.from} buying rate first, then ${chainChallenge.to} selling rate.`;
+};
+
+f$("#chainChallengeNew").onclick=newChainChallenge;
 
 // ------------------------------------------------------------
 // Devaluation & Revaluation Lab
@@ -297,6 +597,6 @@ f$("#changeChallengeCheck").onclick=()=>{
 
 f$("#changeChallengeNew").onclick=newChangeChallenge;
 
-renderValueChange();newChangeChallenge();
+populateChainCurrencies();renderChain();newChainChallenge();renderValueChange();newChangeChallenge();
 
 </script></body></html>
